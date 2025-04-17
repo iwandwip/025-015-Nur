@@ -1,0 +1,12 @@
+#pragma once
+
+#define BLYNK_WIFI_SSID "TIMEOSPACE"
+#define BLYNK_WIFI_PASS "1234Saja"
+
+#define BLYNK_PRINT Serial
+#define BLYNK_DEVICE_ID 1
+#define BLYNK_DEVICE_NAME "TSLA"
+
+#define BLYNK_TEMPLATE_ID "TMPL6I0QFC2cF"
+#define BLYNK_TEMPLATE_NAME "Skripsi"
+#define BLYNK_AUTH_TOKEN "D0VFaAEmbfzMLr9nu_meoA0oWFruUpdW"
