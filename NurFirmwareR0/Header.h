@@ -6,6 +6,7 @@
 #define ENABLE_MODULE_SERIAL_HARD
 #define ENABLE_MODULE_DATETIME_NTP_V2
 #define ENABLE_MODULE_LCD_MENU
+#define ENABLE_MODULE_SD_CARD_MODULE_ESP32
 
 #define ENABLE_SENSOR_MODULE
 #define ENABLE_SENSOR_MODULE_UTILITY
@@ -28,6 +29,7 @@ DateTimeNTPV2 dateTime(ntpServer, gmtOffset_sec, daylightOffset_sec);
 TaskHandle task;
 Preferences preferences;
 WiFiClientSecure client;
+SDCardModuleESP32 sd;
 
 ////////// Sensor //////////
 SensorModule sensor;

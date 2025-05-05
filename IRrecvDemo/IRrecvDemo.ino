@@ -3,7 +3,7 @@
 #include <IRrecv.h>
 #include <IRutils.h>
 
-const uint16_t kRecvPin = 14;
+const uint16_t kRecvPin = 12;
 
 IRrecv irrecv(kRecvPin);
 decode_results results;

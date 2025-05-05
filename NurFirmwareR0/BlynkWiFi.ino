@@ -57,7 +57,7 @@ BLYNK_WRITE(VIRTUAL_PIN_POWER_BUTTON) {
   if (powerButton) powerStatus = "HIDUP";
   else powerStatus = "MATI";
   preferences.begin("nur", false);
-  preferences.putString("pwtStatus", powerStatus);
+  preferences.putString("pwrStatus", powerStatus);
   preferences.end();
 }
 
