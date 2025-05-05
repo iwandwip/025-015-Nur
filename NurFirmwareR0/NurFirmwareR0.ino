@@ -29,8 +29,8 @@ void loopTask() {
 
   MenuCursor cursor{
     .up = false,
-    .down = false,
-    .select = false,
+    .down = buttonDown.isPressed(),
+    .select = buttonOk.isPressed(),
     .back = false,
     .show = true
   };

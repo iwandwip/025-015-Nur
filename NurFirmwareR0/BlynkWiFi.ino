@@ -34,7 +34,7 @@ void blynkTask() {
 }
 
 BLYNK_WRITE(VIRTUAL_PIN_UP_BUTTON) {
-  buzzer.onToOffDelay(45);
+  buzzer.onToOffDelay(55);
   upButton = param.asInt();
   if (upButton) temperatureSetpoint += 1;
   preferences.begin("nur", false);
@@ -43,7 +43,7 @@ BLYNK_WRITE(VIRTUAL_PIN_UP_BUTTON) {
 }
 
 BLYNK_WRITE(VIRTUAL_PIN_DOWN_BUTTON) {
-  buzzer.onToOffDelay(45);
+  buzzer.onToOffDelay(55);
   downButton = param.asInt();
   if (downButton) temperatureSetpoint -= 1;
   preferences.begin("nur", false);
@@ -52,7 +52,7 @@ BLYNK_WRITE(VIRTUAL_PIN_DOWN_BUTTON) {
 }
 
 BLYNK_WRITE(VIRTUAL_PIN_POWER_BUTTON) {
-  buzzer.onToOffDelay(45);
+  buzzer.onToOffDelay(55);
   powerButton = param.asInt();
   if (powerButton) powerStatus = "HIDUP";
   else powerStatus = "MATI";
@@ -62,6 +62,6 @@ BLYNK_WRITE(VIRTUAL_PIN_POWER_BUTTON) {
 }
 
 BLYNK_WRITE(VIRTUAL_PIN_MODE_BUTTON) {
-  buzzer.onToOffDelay(45);
+  buzzer.onToOffDelay(55);
   modeButton = param.asInt();
 }
