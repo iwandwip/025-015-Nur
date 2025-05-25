@@ -1,47 +1,89 @@
 #include "Header.h"
 
 void setup() {
+  debug.begin();
+  debug.useUserDefinedLogLevels();
+  LOG_INFO = debug.createLogLevel("LOG_INFO");
+  LOG_SENSOR = debug.createLogLevel("LOG_SENSOR");
+  LOG_COMS = debug.createLogLevel("LOG_COMS");
+  LOG_NOTIF = debug.createLogLevel("LOG_NOTIF");
+  LOG_LOGGER = debug.createLogLevel("LOG_LOGGER");
+  LOG_AC = debug.createLogLevel("LOG_AC");
+  LOG_BLYNK = debug.createLogLevel("LOG_BLYNK");
+  debug.enableLogLevel(LOG_COMS);
+  debug.enableLogLevel(LOG_NOTIF);
+  debug.enableLogLevel(LOG_AC);
+  debug.enableLogLevel(LOG_BLYNK);
   usbSerial.begin(&Serial, 115200);
 
+  ac.begin();
   Blynk.begin(BLYNK_AUTH_TOKEN, BLYNK_WIFI_SSID, BLYNK_WIFI_PASS);
 
-  // if (!sd.begin(5)) {
-  //   Serial.println("Card Mount Failed");
-  //   return;
-  // }
-
-  // Serial.println("Card mounted successfully");
-  // Serial.print("Card Type: ");
-  // Serial.println(sd.cardTypeString());
-  // Serial.print("Card Size: ");
-  // Serial.print(sd.cardSize() / (1024 * 1024));
-  // Serial.println(" MB");
+  initDataLogger();
 
   preferences.begin("nur", false);
-  temperatureSetpoint = preferences.getFloat("tempSp", 25.0);
-  powerStatus = preferences.getString("pwrStatus", "HIDUP");
+  temperatureSetpoint = preferences.getFloat("setpoint", 25.0);
+  powerStatus = preferences.getString("status", "HIDUP");
+  modeButton = preferences.getInt("mode", 0);
   preferences.end();
 
-  task.initialize(wifiTask);
   menu.initialize(true);
   menu.setLen(16, 2);
 
   sensor.addModule("aht", new AHTSens);
   sensor.init();
-  buzzer.toggleInit(100, 5);
+
+  task.initialize(wifiTask);
+  buzzer.toggleInit(100, 3);
+
+  // logic.create("exceedCondition").when(&temperature).whenExceeds(27.0).then(exceedCondition).repeat(3).every(1000).build();
+  // logic.create("bellowCondition").when(&temperature).whenDropsBelow(17.0).then(bellowCondition).repeat(3).every(1000).build();
+
+  logic.create("exceedNotification")
+    .when(&temperature)
+    .whenExceeds(27.0)
+    .then(exceedNotification)
+    .build();
+  logic.create("bellowNotification")
+    .when(&temperature)
+    .whenDropsBelow(17.0)
+    .then(bellowNotification)
+    .build();
+
+  logic.create("onTemperatureChange")
+    .when(&temperatureSetpoint)
+    .onChange()
+    .then(onTemperatureChange)
+    .build();
 }
 
 void loop() {
+  logic.run();
   Blynk.run();
   blynkTask();
 }
 
 void loopTask() {
-  sensor.update([]() {
-    // sensor.debug();
-    temperature = sensor["aht"]["temp"];
-    humidity = sensor["aht"]["hum"];
-  });
+  // sensor.update();
+  // sensor.debug();
+
+  // temperature = sensor["aht"]["temp"];
+  // humidity = sensor["aht"]["hum"];
+
+  debug.startPrint(LOG_SENSOR);
+  debug.continuePrint("temperature", temperature, LOG_SENSOR);
+  debug.continuePrint("humidity", humidity, LOG_SENSOR);
+  debug.endPrint(LOG_SENSOR, true);
+  logSensorData();
+
+  debug.startPrint(LOG_INFO);
+  debug.continuePrint("temp", temperature, LOG_INFO);
+  debug.continuePrint("hum", humidity, LOG_INFO);
+  debug.continuePrint("sp", temperatureSetpoint, LOG_INFO);
+  debug.continuePrint("power", powerButton ? "ON" : "OFF", LOG_INFO);
+  debug.continuePrint("status", powerStatus, LOG_INFO);
+  debug.continuePrint("mode", modeButton ? "AUTO" : "MANUAL", LOG_INFO);
+  debug.endPrint(LOG_INFO, true);
 
   MenuCursor cursor{
     .up = false,
@@ -54,5 +96,5 @@ void loopTask() {
   usbSerial.receive(usbCommunicationTask);
 
   DigitalIn::updateAll(&buttonDown, &buttonOk, DigitalIn::stop());
-  DigitalOut::updateAll(&buzzer, DigitalOut::stop());
+  DigitalOut::updateAll(&buzzer, &ledRed, &ledGreen, &ledBlue, DigitalOut::stop());
 }

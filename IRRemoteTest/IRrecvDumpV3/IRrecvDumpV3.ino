@@ -48,9 +48,9 @@
 // Note: GPIO 14 won't work on the ESP32-C3 as it causes the board to reboot.
 #ifdef ARDUINO_ESP32C3_DEV
 const uint16_t kRecvPin = 10;  // 14 on a ESP32-C3 causes a boot loop.
-#else  // ARDUINO_ESP32C3_DEV
+#else                          // ARDUINO_ESP32C3_DEV
 const uint16_t kRecvPin = 14;
-#endif  // ARDUINO_ESP32C3_DEV
+#endif                         // ARDUINO_ESP32C3_DEV
 
 // The Serial connection baud rate.
 // i.e. Status message will be sent to the PC at this baud rate.
@@ -138,9 +138,9 @@ void setup() {
   OTAwifi();  // start default wifi (previously saved on the ESP) for OTA
 #if defined(ESP8266)
   Serial.begin(kBaudRate, SERIAL_8N1, SERIAL_TX_ONLY);
-#else  // ESP8266
+#else              // ESP8266
   Serial.begin(kBaudRate, SERIAL_8N1);
-#endif  // ESP8266
+#endif             // ESP8266
   while (!Serial)  // Wait for the serial connection to be establised.
     delay(50);
   // Perform a low level sanity checks that the compiler performs bit field
@@ -152,9 +152,9 @@ void setup() {
 #if DECODE_HASH
   // Ignore messages with less than minimum on or off pulses.
   irrecv.setUnknownThreshold(kMinUnknownSize);
-#endif  // DECODE_HASH
+#endif                                        // DECODE_HASH
   irrecv.setTolerance(kTolerancePercentage);  // Override the default tolerance.
-  irrecv.enableIRIn();  // Start the receiver
+  irrecv.enableIRIn();                        // Start the receiver
 }
 
 // The repeating section of the code
@@ -182,11 +182,11 @@ void loop() {
     // Output legacy RAW timing info of the result.
     Serial.println(resultToTimingInfo(&results));
     yield();  // Feed the WDT (again)
-#endif  // LEGACY_TIMING_INFO
+#endif        // LEGACY_TIMING_INFO
     // Output the results as source code
     Serial.println(resultToSourceCode(&results));
-    Serial.println();    // Blank line between entries
-    yield();             // Feed the WDT (again)
+    Serial.println();  // Blank line between entries
+    yield();           // Feed the WDT (again)
   }
   OTAloopHandler();
 }

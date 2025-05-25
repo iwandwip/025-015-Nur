@@ -1,31 +1,3 @@
-/*
- * IRremoteESP8266: IRrecvDumpV2 - dump details of IR codes with IRrecv
- * An IR detector/demodulator must be connected to the input kRecvPin.
- *
- * Copyright 2009 Ken Shirriff, http://arcfn.com
- * Copyright 2017-2019 David Conran
- *
- * Example circuit diagram:
- *  https://github.com/crankyoldgit/IRremoteESP8266/wiki#ir-receiving
- *
- * Changes:
- *   Version 1.2 October, 2020
- *     - Enable easy setting of the decoding tolerance value.
- *   Version 1.0 October, 2019
- *     - Internationalisation (i18n) support.
- *     - Stop displaying the legacy raw timing info.
- *   Version 0.5 June, 2019
- *     - Move A/C description to IRac.cpp.
- *   Version 0.4 July, 2018
- *     - Minor improvements and more A/C unit support.
- *   Version 0.3 November, 2017
- *     - Support for A/C decoding for some protocols.
- *   Version 0.2 April, 2017
- *     - Decode from a copy of the data so we can start capturing faster thus
- *       reduce the likelihood of miscaptures.
- * Based on Ken Shirriff's IrsendDemo Version 0.1 July, 2009,
- */
-
 #include <Arduino.h>
 #include <assert.h>
 #include <IRrecv.h>
@@ -39,7 +11,11 @@
 // e.g. D5 on a NodeMCU board.
 // Note: GPIO 16 won't work on the ESP8266 as it does not have interrupts.
 // Note: GPIO 14 won't work on the ESP32-C3 as it causes the board to reboot.
-const uint16_t kRecvPin = 12;
+#ifdef ARDUINO_ESP32C3_DEV
+const uint16_t kRecvPin = 15;  // 14 on a ESP32-C3 causes a boot loop.
+#else                          // ARDUINO_ESP32C3_DEV
+const uint16_t kRecvPin = 15;
+#endif                         // ARDUINO_ESP32C3_DEV
 
 // The Serial connection baud rate.
 // i.e. Status message will be sent to the PC at this baud rate.
