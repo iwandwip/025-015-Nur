@@ -55,20 +55,51 @@ void setup() {
     .onChange()
     .then(onTemperatureChange)
     .build();
+
+  logic.create("backlightOn")
+    .when([]() {
+      return lcdBacklightButtonState;
+    })
+    .onRising()
+    .then([]() {
+      lcdBacklightState = true;
+      lcdBacklightStartTimer = millis();
+      lcdBacklightButtonState = false;
+    })
+    .build();
+
+  logic.create("backlightOff")
+    .when([]() {
+      return lcdBacklightState && (millis() - lcdBacklightStartTimer >= 60000);
+    })
+    .onRising()
+    .then([]() {
+      lcdBacklightState = false;
+    })
+    .build();
+
+  lcdBacklightButtonState = true;
 }
 
 void loop() {
   logic.run();
+
+  if (lcdBacklightState) {
+    menu.backlight();
+  } else {
+    menu.noBacklight();
+  }
+
   Blynk.run();
   blynkTask();
 }
 
 void loopTask() {
-  // sensor.update();
-  // sensor.debug();
-
-  // temperature = sensor["aht"]["temp"];
-  // humidity = sensor["aht"]["hum"];
+  if (!enableTestingMode) {
+    sensor.update();
+    temperature = sensor["aht"]["temp"];
+    humidity = sensor["aht"]["hum"];
+  }
 
   debug.startPrint(LOG_SENSOR);
   debug.continuePrint("temperature", temperature, LOG_SENSOR);
@@ -85,10 +116,18 @@ void loopTask() {
   debug.continuePrint("mode", modeButton ? "AUTO" : "MANUAL", LOG_INFO);
   debug.endPrint(LOG_INFO, true);
 
+  if (buttonDown.isPressed() || buttonOk.isPressed()) {
+    if (lcdBacklightState) {
+      lcdBacklightStartTimer = millis();
+    } else {
+      lcdBacklightButtonState = true;
+    }
+  }
+
   MenuCursor cursor{
     .up = false,
-    .down = buttonDown.isPressed(),
-    .select = buttonOk.isPressed(),
+    .down = buttonDown.isPressed() && lcdBacklightState,
+    .select = buttonOk.isPressed() && lcdBacklightState,
     .back = false,
     .show = true
   };

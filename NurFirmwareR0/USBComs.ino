@@ -45,6 +45,15 @@ void usbCommunicationTask(const String& dataRecv) {
     }
   }
 
+  if (dataHeader == "TOGGLE_BACKLIGHT") {
+    lcdBacklightState = !lcdBacklightState;
+    if (lcdBacklightState) {
+      menu.backlight();
+    } else {
+      menu.noBacklight();
+    }
+  }
+
   if (dataHeader == "SHOW_TIMESTAMP") {
     timestamp = dateTime.getDateTimeString();
     Serial.print("| timestamp: ");

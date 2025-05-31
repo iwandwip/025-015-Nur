@@ -1,5 +1,5 @@
 void menuDisplayCallback() {
-  static auto menuMain = menu.createMenu(menu.begin(5), "Temp: ", "Hum : ", "Blynk Enable", "Log Enable", "Delete Log");
+  static auto menuMain = menu.createMenu(menu.begin(6), "Temp: ", "Hum : ", "Blynk Enable", "Log Enable", "Delete Log", "Testing Mode");
   menu.formatMenu(menuMain, 0, "Temp : %5.2f", temperature);
   menu.formatMenu(menuMain, 1, "Hum  : %5.2f", humidity);
   menu.onSelect(menuMain, "Blynk Enable", []() {
@@ -47,6 +47,46 @@ void menuDisplayCallback() {
     menu.freeMenu(menuLoggerDelete);
     menu.wait(2000);
     menu.clearMenu(menuMain, menuLoggerDelete, menu.end());
+  });
+  menu.onSelect(menuMain, "Testing Mode", []() {
+    static auto menuTestingEnable = menu.createMenu(menu.begin(5), "Sta : Enable", "Toggle", "Set Temp 35", "Set Temp 15", "Back");
+    menu.formatMenu(menuTestingEnable, 0, "Sta : %s", enableTestingMode ? "Enable" : "Disable");
+    menu.onSelect(menuTestingEnable, "Toggle", []() {
+      enableTestingMode = !enableTestingMode;
+      auto menuTestingStatus = menu.createMenu(menu.begin(2), "Testing Mode", "Set To Enable");
+      menu.formatMenu(menuTestingStatus, 1, "%s", enableTestingMode ? "Enable" : "Disable");
+      menu.showMenu(menuTestingStatus, true);
+      menu.freeMenu(menuTestingStatus);
+      menu.wait(2000);
+      menu.clearMenu(menuMain, menuTestingEnable, menu.end());
+      if (enableTestingMode) {
+        temperature = 0.0;
+        humidity = 0.0;
+        menu.formatMenu(menuMain, 0, "Temp : %5.2f", temperature);
+        menu.formatMenu(menuMain, 1, "Hum  : %5.2f", humidity);
+        menu.showMenu(menuMain, true);
+      }
+    });
+    menu.onSelect(menuTestingEnable, "Set Temp 35", []() {
+      auto menuSetTemp35 = menu.createMenu(menu.begin(2), "Set Temperature", "To 35");
+      menu.showMenu(menuSetTemp35, true);
+      menu.freeMenu(menuSetTemp35);
+      menu.wait(2000);
+      menu.clearMenu(menuMain, menuTestingEnable, menu.end());
+      temperature = 35;
+    });
+    menu.onSelect(menuTestingEnable, "Set Temp 15", []() {
+      auto menuSetTemp15 = menu.createMenu(menu.begin(2), "Set Temperature", "To 15");
+      menu.showMenu(menuSetTemp15, true);
+      menu.freeMenu(menuSetTemp15);
+      menu.wait(2000);
+      menu.clearMenu(menuMain, menuTestingEnable, menu.end());
+      temperature = 15;
+    });
+    menu.onSelect(menuTestingEnable, "Back", []() {
+      menu.clearMenu(menuMain, menuTestingEnable, menu.end());
+    });
+    menu.showMenu(menuTestingEnable);
   });
   menu.showMenu(menuMain);
 }

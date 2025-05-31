@@ -1,10 +1,10 @@
 #pragma once
 
-// #define BLYNK_WIFI_SSID "TIMEOSPACE"
-// #define BLYNK_WIFI_PASS "1234Saja"
+#define BLYNK_WIFI_SSID "TIMEOSPACE"
+#define BLYNK_WIFI_PASS "1234Saja"
 
-#define BLYNK_WIFI_SSID "silenceAndSleep"
-#define BLYNK_WIFI_PASS "11111111"
+// #define BLYNK_WIFI_SSID "silenceAndSleep"
+// #define BLYNK_WIFI_PASS "11111111"
 
 #define BLYNK_PRINT Serial
 #define BLYNK_DEVICE_ID 1

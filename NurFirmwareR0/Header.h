@@ -77,6 +77,7 @@ IRPanasonicAc ac(33);
 ////////// Global Variable //////////
 bool enableBlynkSend = false;
 bool enableDataLogger = false;
+bool enableTestingMode = false;
 
 float autoTemperatureSetpointUpper = 27.0;
 float autoTemperatureSetpointLower = 18.0;
@@ -90,3 +91,7 @@ String powerStatus = "HIDUP";
 int modeButton = 0;
 
 String timestamp = "";
+
+uint32_t lcdBacklightStartTimer = 0;
+bool lcdBacklightState = false;
+bool lcdBacklightButtonState = false;

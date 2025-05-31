@@ -50,6 +50,7 @@ BLYNK_WRITE(VIRTUAL_PIN_UP_BUTTON) {
   if (!modeButton && powerButton) {
     upButton = param.asInt();
     if (upButton) {
+      lcdBacklightButtonState = true;
       buzzer.onToOffDelay(55);
       temperatureSetpoint += 1;
       acSetTemperature(temperatureSetpoint);
@@ -67,6 +68,7 @@ BLYNK_WRITE(VIRTUAL_PIN_DOWN_BUTTON) {
   if (!modeButton && powerButton) {
     downButton = param.asInt();
     if (downButton) {
+      lcdBacklightButtonState = true;
       buzzer.onToOffDelay(55);
       temperatureSetpoint -= 1;
       acSetTemperature(temperatureSetpoint);
@@ -83,6 +85,7 @@ BLYNK_WRITE(VIRTUAL_PIN_DOWN_BUTTON) {
 BLYNK_WRITE(VIRTUAL_PIN_POWER_BUTTON) {
   if (!modeButton) {
     powerButton = param.asInt();
+    lcdBacklightButtonState = true;
     if (powerButton) {
       buzzer.toggleInit(100, 3);
       acPowerOn();
@@ -102,6 +105,7 @@ BLYNK_WRITE(VIRTUAL_PIN_POWER_BUTTON) {
 }
 
 BLYNK_WRITE(VIRTUAL_PIN_MODE_BUTTON) {
+  lcdBacklightButtonState = true;
   buzzer.onToOffDelay(55);
   modeButton = param.asInt();
   if (modeButton) {
