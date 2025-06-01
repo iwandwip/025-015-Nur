@@ -42,7 +42,7 @@ void bellowNotification() {
   // Blynk.logEvent("temperaturewarning", "Suhu Dibawah Ambang Batas");
 }
 
-void onTemperatureChange() {
+void onTemperatureSpChange() {
   Blynk.virtualWrite(VIRTUAL_PIN_TEMPERATURE_SETPOINT, temperatureSetpoint);
 }
 

@@ -50,10 +50,10 @@ void setup() {
     .then(bellowNotification)
     .build();
 
-  logic.create("onTemperatureChange")
+  logic.create("onTemperatureSpChange")
     .when(&temperatureSetpoint)
     .onChange()
-    .then(onTemperatureChange)
+    .then(onTemperatureSpChange)
     .build();
 
   logic.create("backlightOn")
