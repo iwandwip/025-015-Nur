@@ -10,6 +10,7 @@
 #define ENABLE_MODULE_SERIAL_DEBUGGER_V2
 #define ENABLE_MODULE_LOGIC_CONDITION_MANAGER
 #define ENABLE_MODULE_EASY_LOGIC
+#define ENABLE_MODULE_GOOGLE_SHEETS
 
 #define ENABLE_SENSOR_MODULE
 #define ENABLE_SENSOR_MODULE_UTILITY
@@ -36,6 +37,7 @@ const int daylightOffset_sec = 0;
 
 DateTimeNTPV2 dateTime(ntpServer, gmtOffset_sec, daylightOffset_sec);
 SDCardModuleESP32 sdCard(5);
+GoogleSheetClient gsheet;
 TaskHandle task;
 Preferences preferences;
 WiFiClientSecure client;
@@ -79,7 +81,7 @@ bool enableBlynkSend = false;
 bool enableDataLogger = false;
 bool enableTestingMode = false;
 
-float autoTemperatureSetpointUpper = 27.0;
+float autoTemperatureSetpointUpper = 28.0;
 float autoTemperatureSetpointLower = 18.0;
 float temperature = 0.0;
 float humidity = 0.0;
@@ -91,6 +93,7 @@ String powerStatus = "HIDUP";
 int modeButton = 0;
 
 String timestamp = "";
+String temperatureStatus = "Normal";
 
 uint32_t lcdBacklightStartTimer = 0;
 bool lcdBacklightState = false;

@@ -18,7 +18,7 @@ void setup() {
 
   ac.begin();
   Blynk.begin(BLYNK_AUTH_TOKEN, BLYNK_WIFI_SSID, BLYNK_WIFI_PASS);
-
+  initSpreadSheet();
   initDataLogger();
 
   preferences.begin("nur", false);
@@ -36,17 +36,17 @@ void setup() {
   task.initialize(wifiTask);
   buzzer.toggleInit(100, 3);
 
-  // logic.create("exceedCondition").when(&temperature).whenExceeds(27.0).then(exceedCondition).repeat(3).every(1000).build();
-  // logic.create("bellowCondition").when(&temperature).whenDropsBelow(17.0).then(bellowCondition).repeat(3).every(1000).build();
+  // logic.create("exceedCondition").when(&temperature).whenExceeds(autoTemperatureSetpointUpper).then(exceedCondition).repeat(3).every(1000).build();
+  // logic.create("bellowCondition").when(&temperature).whenDropsBelow(autoTemperatureSetpointLower).then(bellowCondition).repeat(3).every(1000).build();
 
   logic.create("exceedNotification")
     .when(&temperature)
-    .whenExceeds(27.0)
+    .whenExceeds(autoTemperatureSetpointUpper)
     .then(exceedNotification)
     .build();
   logic.create("bellowNotification")
     .when(&temperature)
-    .whenDropsBelow(17.0)
+    .whenDropsBelow(autoTemperatureSetpointLower)
     .then(bellowNotification)
     .build();
 
@@ -83,15 +83,9 @@ void setup() {
 
 void loop() {
   logic.run();
-
-  if (lcdBacklightState) {
-    menu.backlight();
-  } else {
-    menu.noBacklight();
-  }
-
   Blynk.run();
   blynkTask();
+  sendToSpreadsheet();
 }
 
 void loopTask() {
@@ -99,6 +93,12 @@ void loopTask() {
     sensor.update();
     temperature = sensor["aht"]["temp"];
     humidity = sensor["aht"]["hum"];
+  }
+
+  if (lcdBacklightState) {
+    menu.backlight();
+  } else {
+    menu.noBacklight();
   }
 
   debug.startPrint(LOG_SENSOR);

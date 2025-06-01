@@ -58,6 +58,16 @@ void setup() {
   //     Serial.println("°C");
   //   })
   //   .build();
+
+  logic.create("normalNotif")
+    .when(&temperature)
+    .between(17.0, 27.0)
+    .whenBecomesTrue()
+    .then([]() {
+      Serial.print("✅ Temperature NORMAL: ");
+      Serial.println(temperature);
+    })
+    .build();
 }
 
 void loop() {
