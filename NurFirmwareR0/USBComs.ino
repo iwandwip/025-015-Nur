@@ -17,7 +17,9 @@ void usbCommunicationTask(const String& dataRecv) {
 
   if (dataHeader == "R") ESP.restart();
 
-  if (dataHeader == "TEMP") temperature = dataValue.toFloat();  // TEMP#35, TEMP#15
+  if (dataHeader == "TEMP") temperature = dataValue.toFloat();         // TEMP#35, TEMP#15
+  if (dataHeader == "TEMP_REF") temperatureRef = dataValue.toFloat();  // TEMP_REF#35, TEMP_REF#15
+
   if (dataHeader == "ENABLE_BLYNK") {
     enableBlynkSend = !enableBlynkSend;
     Serial.print("| enableBlynkSend: ");

@@ -20,7 +20,7 @@ void sendToSpreadsheet() {
   gsheet.process();
 
   static uint32_t spreadsheetSendTimer;
-  if (millis() - spreadsheetSendTimer >= 5000) {
+  if (millis() - spreadsheetSendTimer >= 60000) {
     spreadsheetSendTimer = millis();
 
     if (temperature > autoTemperatureSetpointUpper) {

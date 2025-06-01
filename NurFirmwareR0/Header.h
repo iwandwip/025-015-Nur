@@ -84,6 +84,7 @@ bool enableTestingMode = false;
 float autoTemperatureSetpointUpper = 28.0;
 float autoTemperatureSetpointLower = 18.0;
 float temperature = 0.0;
+float temperatureRef = 0.0;
 float humidity = 0.0;
 float temperatureSetpoint = 25.0;
 int upButton = 0;

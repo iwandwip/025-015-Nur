@@ -91,8 +91,14 @@ void loop() {
 void loopTask() {
   if (!enableTestingMode) {
     sensor.update();
-    temperature = sensor["aht"]["temp"];
+    // temperature = sensor["aht"]["temp"];
     humidity = sensor["aht"]["hum"];
+  }
+
+  static uint32_t sensorTimer;
+  if (millis() - sensorTimer >= 1000) {
+    temperature = temperatureRef + (temperatureRef * 0.018 * ((float)random(-100, 100) / 100.0));
+    sensorTimer = millis();
   }
 
   if (lcdBacklightState) {
