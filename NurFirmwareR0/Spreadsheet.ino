@@ -19,6 +19,10 @@ void initSpreadSheet() {
 void sendToSpreadsheet() {
   gsheet.process();
 
+  if (!enableGoogleSheetsUpdate) {
+    return;
+  }
+
   static uint32_t spreadsheetSendTimer;
   if (millis() - spreadsheetSendTimer >= 60000) {
     spreadsheetSendTimer = millis();

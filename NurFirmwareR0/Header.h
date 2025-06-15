@@ -80,6 +80,7 @@ IRPanasonicAc ac(33);
 bool enableBlynkSend = false;
 bool enableDataLogger = false;
 bool enableTestingMode = false;
+bool enableGoogleSheetsUpdate = false;
 
 float autoTemperatureSetpointUpper = 28.0;
 float autoTemperatureSetpointLower = 18.0;

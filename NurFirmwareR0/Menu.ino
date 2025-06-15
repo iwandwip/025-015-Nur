@@ -1,7 +1,32 @@
 void menuDisplayCallback() {
-  static auto menuMain = menu.createMenu(menu.begin(6), "Temp: ", "Hum : ", "Testing Mode", "Blynk Enable", "Log Enable", "Delete Log");
+  static auto menuMain = menu.createMenu(menu.begin(8), "Temp: ", "Hum : ", "AC Control", "Testing Mode", "Blynk Enable", "Log Enable", "GLog Enable", "Delete Log");
   menu.formatMenu(menuMain, 0, "Temp : %5.2f", temperature);
   menu.formatMenu(menuMain, 1, "Hum  : %5.2f", humidity);
+  menu.onSelect(menuMain, "AC Control", []() {
+    static auto menuACControl = menu.createMenu(menu.begin(3), "Mode: AUTO", "Toggle", "Back");
+    menu.formatMenu(menuACControl, 0, "Mode: %s", modeButton ? "AUTO" : "MANUAL");
+    menu.onSelect(menuACControl, "Toggle", []() {
+      modeButton = !modeButton;
+      Blynk.virtualWrite(VIRTUAL_PIN_MODE_BUTTON, modeButton);
+      if (modeButton) {
+        Blynk.virtualWrite(VIRTUAL_PIN_POWER_BUTTON, 0);
+        powerButton = 0;
+      }
+      preferences.begin("nur", false);
+      preferences.putInt("mode", modeButton);
+      preferences.end();
+      auto menuACStatus = menu.createMenu(menu.begin(2), "AC Control Set To", "AUTO");
+      menu.formatMenu(menuACStatus, 1, "%s", modeButton ? "AUTO" : "MANUAL");
+      menu.showMenu(menuACStatus, true);
+      menu.freeMenu(menuACStatus);
+      menu.wait(2000);
+      menu.clearMenu(menuMain, menuACControl, menu.end());
+    });
+    menu.onSelect(menuACControl, "Back", []() {
+      menu.clearMenu(menuMain, menuACControl, menu.end());
+    });
+    menu.showMenu(menuACControl);
+  });
   menu.onSelect(menuMain, "Testing Mode", []() {
     static auto menuTestingEnable = menu.createMenu(menu.begin(6), "Sta : Enable", "Toggle", "Set Temp 35", "Set Temp 25", "Set Temp 15", "Back");
     menu.formatMenu(menuTestingEnable, 0, "Sta : %s", enableTestingMode ? "Enable" : "Disable");
@@ -84,6 +109,26 @@ void menuDisplayCallback() {
       menu.clearMenu(menuMain, menuLoggerEnable, menu.end());
     });
     menu.showMenu(menuLoggerEnable);
+  });
+  menu.onSelect(menuMain, "GLog Enable", []() {
+    static auto menuGLogEnable = menu.createMenu(menu.begin(3), "Sta : Enable", "Toggle", "Back");
+    menu.formatMenu(menuGLogEnable, 0, "Sta : %s", enableGoogleSheetsUpdate ? "Enable" : "Disable");
+    menu.onSelect(menuGLogEnable, "Toggle", []() {
+      enableGoogleSheetsUpdate = !enableGoogleSheetsUpdate;
+      preferences.begin("nur", false);
+      preferences.putBool("glogEnable", enableGoogleSheetsUpdate);
+      preferences.end();
+      auto menuGLogStatus = menu.createMenu(menu.begin(2), "GLog Set To", "Enable");
+      menu.formatMenu(menuGLogStatus, 1, "%s", enableGoogleSheetsUpdate ? "Enable" : "Disable");
+      menu.showMenu(menuGLogStatus, true);
+      menu.freeMenu(menuGLogStatus);
+      menu.wait(2000);
+      menu.clearMenu(menuMain, menuGLogEnable, menu.end());
+    });
+    menu.onSelect(menuGLogEnable, "Back", []() {
+      menu.clearMenu(menuMain, menuGLogEnable, menu.end());
+    });
+    menu.showMenu(menuGLogEnable);
   });
   menu.onSelect(menuMain, "Delete Log", []() {
     if (sdCard.deleteFile(DATA_LOGGER_FILE_NAME)) {

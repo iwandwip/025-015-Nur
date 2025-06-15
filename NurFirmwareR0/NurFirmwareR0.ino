@@ -25,6 +25,7 @@ void setup() {
   temperatureSetpoint = preferences.getFloat("setpoint", 25.0);
   powerStatus = preferences.getString("status", "HIDUP");
   modeButton = preferences.getInt("mode", 0);
+  enableGoogleSheetsUpdate = preferences.getBool("glogEnable", false);
   preferences.end();
 
   menu.initialize(true);
@@ -91,7 +92,7 @@ void loop() {
 void loopTask() {
   if (!enableTestingMode) {
     sensor.update();
-    // temperature = sensor["aht"]["temp"];
+    temperature = sensor["aht"]["temp"];
     humidity = sensor["aht"]["hum"];
   }
 
