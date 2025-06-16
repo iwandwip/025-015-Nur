@@ -1,5 +1,5 @@
 void menuDisplayCallback() {
-  static auto menuMain = menu.createMenu(menu.begin(8), "Temp: ", "Hum : ", "AC Control", "Testing Mode", "Blynk Enable", "Log Enable", "GLog Enable", "Delete Log");
+  static auto menuMain = menu.createMenu(menu.begin(11), "Temp: ", "Hum : ", "AC Control", "Testing Mode", "Blynk Enable", "Log Enable", "GLog Enable", "Blynk Delay", "Log Delay", "GLog Delay", "Delete Log");
   menu.formatMenu(menuMain, 0, "Temp : %5.2f", temperature);
   menu.formatMenu(menuMain, 1, "Hum  : %5.2f", humidity);
   menu.onSelect(menuMain, "AC Control", []() {
@@ -129,6 +129,195 @@ void menuDisplayCallback() {
       menu.clearMenu(menuMain, menuGLogEnable, menu.end());
     });
     menu.showMenu(menuGLogEnable);
+  });
+  menu.onSelect(menuMain, "Blynk Delay", []() {
+    static auto menuBlynkDelay = menu.createMenu(menu.begin(7), "Delay: 10 sec", "1 sec", "5 sec", "10 sec", "30 sec", "60 sec", "Back");
+    menu.formatMenu(menuBlynkDelay, 0, "Delay: %lu sec", blynkDelay / 1000);
+    menu.onSelect(menuBlynkDelay, "1 sec", []() {
+      blynkDelay = 1000;
+      preferences.begin("nur", false);
+      preferences.putUInt("blynkDelay", blynkDelay);
+      preferences.end();
+      auto menuStatus = menu.createMenu(menu.begin(2), "Blynk Delay", "Set to 1 sec");
+      menu.showMenu(menuStatus, true);
+      menu.freeMenu(menuStatus);
+      menu.wait(2000);
+      menu.clearMenu(menuMain, menuBlynkDelay, menu.end());
+    });
+    menu.onSelect(menuBlynkDelay, "5 sec", []() {
+      blynkDelay = 5000;
+      preferences.begin("nur", false);
+      preferences.putUInt("blynkDelay", blynkDelay);
+      preferences.end();
+      auto menuStatus = menu.createMenu(menu.begin(2), "Blynk Delay", "Set to 5 sec");
+      menu.showMenu(menuStatus, true);
+      menu.freeMenu(menuStatus);
+      menu.wait(2000);
+      menu.clearMenu(menuMain, menuBlynkDelay, menu.end());
+    });
+    menu.onSelect(menuBlynkDelay, "10 sec", []() {
+      blynkDelay = 10000;
+      preferences.begin("nur", false);
+      preferences.putUInt("blynkDelay", blynkDelay);
+      preferences.end();
+      auto menuStatus = menu.createMenu(menu.begin(2), "Blynk Delay", "Set to 10 sec");
+      menu.showMenu(menuStatus, true);
+      menu.freeMenu(menuStatus);
+      menu.wait(2000);
+      menu.clearMenu(menuMain, menuBlynkDelay, menu.end());
+    });
+    menu.onSelect(menuBlynkDelay, "30 sec", []() {
+      blynkDelay = 30000;
+      preferences.begin("nur", false);
+      preferences.putUInt("blynkDelay", blynkDelay);
+      preferences.end();
+      auto menuStatus = menu.createMenu(menu.begin(2), "Blynk Delay", "Set to 30 sec");
+      menu.showMenu(menuStatus, true);
+      menu.freeMenu(menuStatus);
+      menu.wait(2000);
+      menu.clearMenu(menuMain, menuBlynkDelay, menu.end());
+    });
+    menu.onSelect(menuBlynkDelay, "60 sec", []() {
+      blynkDelay = 60000;
+      preferences.begin("nur", false);
+      preferences.putUInt("blynkDelay", blynkDelay);
+      preferences.end();
+      auto menuStatus = menu.createMenu(menu.begin(2), "Blynk Delay", "Set to 60 sec");
+      menu.showMenu(menuStatus, true);
+      menu.freeMenu(menuStatus);
+      menu.wait(2000);
+      menu.clearMenu(menuMain, menuBlynkDelay, menu.end());
+    });
+    menu.onSelect(menuBlynkDelay, "Back", []() {
+      menu.clearMenu(menuMain, menuBlynkDelay, menu.end());
+    });
+    menu.showMenu(menuBlynkDelay);
+  });
+  menu.onSelect(menuMain, "Log Delay", []() {
+    static auto menuLogDelay = menu.createMenu(menu.begin(7), "Delay: 5 sec", "1 sec", "5 sec", "10 sec", "30 sec", "60 sec", "Back");
+    menu.formatMenu(menuLogDelay, 0, "Delay: %lu sec", dataLoggerDelay / 1000);
+    menu.onSelect(menuLogDelay, "1 sec", []() {
+      dataLoggerDelay = 1000;
+      preferences.begin("nur", false);
+      preferences.putUInt("logDelay", dataLoggerDelay);
+      preferences.end();
+      auto menuStatus = menu.createMenu(menu.begin(2), "Log Delay", "Set to 1 sec");
+      menu.showMenu(menuStatus, true);
+      menu.freeMenu(menuStatus);
+      menu.wait(2000);
+      menu.clearMenu(menuMain, menuLogDelay, menu.end());
+    });
+    menu.onSelect(menuLogDelay, "5 sec", []() {
+      dataLoggerDelay = 5000;
+      preferences.begin("nur", false);
+      preferences.putUInt("logDelay", dataLoggerDelay);
+      preferences.end();
+      auto menuStatus = menu.createMenu(menu.begin(2), "Log Delay", "Set to 5 sec");
+      menu.showMenu(menuStatus, true);
+      menu.freeMenu(menuStatus);
+      menu.wait(2000);
+      menu.clearMenu(menuMain, menuLogDelay, menu.end());
+    });
+    menu.onSelect(menuLogDelay, "10 sec", []() {
+      dataLoggerDelay = 10000;
+      preferences.begin("nur", false);
+      preferences.putUInt("logDelay", dataLoggerDelay);
+      preferences.end();
+      auto menuStatus = menu.createMenu(menu.begin(2), "Log Delay", "Set to 10 sec");
+      menu.showMenu(menuStatus, true);
+      menu.freeMenu(menuStatus);
+      menu.wait(2000);
+      menu.clearMenu(menuMain, menuLogDelay, menu.end());
+    });
+    menu.onSelect(menuLogDelay, "30 sec", []() {
+      dataLoggerDelay = 30000;
+      preferences.begin("nur", false);
+      preferences.putUInt("logDelay", dataLoggerDelay);
+      preferences.end();
+      auto menuStatus = menu.createMenu(menu.begin(2), "Log Delay", "Set to 30 sec");
+      menu.showMenu(menuStatus, true);
+      menu.freeMenu(menuStatus);
+      menu.wait(2000);
+      menu.clearMenu(menuMain, menuLogDelay, menu.end());
+    });
+    menu.onSelect(menuLogDelay, "60 sec", []() {
+      dataLoggerDelay = 60000;
+      preferences.begin("nur", false);
+      preferences.putUInt("logDelay", dataLoggerDelay);
+      preferences.end();
+      auto menuStatus = menu.createMenu(menu.begin(2), "Log Delay", "Set to 60 sec");
+      menu.showMenu(menuStatus, true);
+      menu.freeMenu(menuStatus);
+      menu.wait(2000);
+      menu.clearMenu(menuMain, menuLogDelay, menu.end());
+    });
+    menu.onSelect(menuLogDelay, "Back", []() {
+      menu.clearMenu(menuMain, menuLogDelay, menu.end());
+    });
+    menu.showMenu(menuLogDelay);
+  });
+  menu.onSelect(menuMain, "GLog Delay", []() {
+    static auto menuGLogDelay = menu.createMenu(menu.begin(7), "Delay: 60 sec", "1 sec", "5 sec", "10 sec", "30 sec", "60 sec", "Back");
+    menu.formatMenu(menuGLogDelay, 0, "Delay: %lu sec", gsheetDelay / 1000);
+    menu.onSelect(menuGLogDelay, "1 sec", []() {
+      gsheetDelay = 1000;
+      preferences.begin("nur", false);
+      preferences.putUInt("glogDelayMs", gsheetDelay);
+      preferences.end();
+      auto menuStatus = menu.createMenu(menu.begin(2), "GLog Delay", "Set to 1 sec");
+      menu.showMenu(menuStatus, true);
+      menu.freeMenu(menuStatus);
+      menu.wait(2000);
+      menu.clearMenu(menuMain, menuGLogDelay, menu.end());
+    });
+    menu.onSelect(menuGLogDelay, "5 sec", []() {
+      gsheetDelay = 5000;
+      preferences.begin("nur", false);
+      preferences.putUInt("glogDelayMs", gsheetDelay);
+      preferences.end();
+      auto menuStatus = menu.createMenu(menu.begin(2), "GLog Delay", "Set to 5 sec");
+      menu.showMenu(menuStatus, true);
+      menu.freeMenu(menuStatus);
+      menu.wait(2000);
+      menu.clearMenu(menuMain, menuGLogDelay, menu.end());
+    });
+    menu.onSelect(menuGLogDelay, "10 sec", []() {
+      gsheetDelay = 10000;
+      preferences.begin("nur", false);
+      preferences.putUInt("glogDelayMs", gsheetDelay);
+      preferences.end();
+      auto menuStatus = menu.createMenu(menu.begin(2), "GLog Delay", "Set to 10 sec");
+      menu.showMenu(menuStatus, true);
+      menu.freeMenu(menuStatus);
+      menu.wait(2000);
+      menu.clearMenu(menuMain, menuGLogDelay, menu.end());
+    });
+    menu.onSelect(menuGLogDelay, "30 sec", []() {
+      gsheetDelay = 30000;
+      preferences.begin("nur", false);
+      preferences.putUInt("glogDelayMs", gsheetDelay);
+      preferences.end();
+      auto menuStatus = menu.createMenu(menu.begin(2), "GLog Delay", "Set to 30 sec");
+      menu.showMenu(menuStatus, true);
+      menu.freeMenu(menuStatus);
+      menu.wait(2000);
+      menu.clearMenu(menuMain, menuGLogDelay, menu.end());
+    });
+    menu.onSelect(menuGLogDelay, "60 sec", []() {
+      gsheetDelay = 60000;
+      preferences.begin("nur", false);
+      preferences.putUInt("glogDelayMs", gsheetDelay);
+      preferences.end();
+      auto menuStatus = menu.createMenu(menu.begin(2), "GLog Delay", "Set to 60 sec");
+      menu.showMenu(menuStatus, true);
+      menu.freeMenu(menuStatus);
+      menu.wait(2000);
+      menu.clearMenu(menuMain, menuGLogDelay, menu.end());
+    });
+    menu.onSelect(menuGLogDelay, "Back", []() {
+      menu.clearMenu(menuMain, menuGLogDelay, menu.end());
+    });
+    menu.showMenu(menuGLogDelay);
   });
   menu.onSelect(menuMain, "Delete Log", []() {
     if (sdCard.deleteFile(DATA_LOGGER_FILE_NAME)) {

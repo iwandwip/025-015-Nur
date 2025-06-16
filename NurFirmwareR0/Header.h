@@ -33,7 +33,6 @@ const long gmtOffset_sec = 7 * 3600;  // Offset for WIB (UTC+7)
 const int daylightOffset_sec = 0;
 
 #define DATA_LOGGER_FILE_NAME "/sensor_log.csv"
-#define DATA_LOGGER_INTERVAL 5000
 
 DateTimeNTPV2 dateTime(ntpServer, gmtOffset_sec, daylightOffset_sec);
 SDCardModuleESP32 sdCard(5);
@@ -79,8 +78,13 @@ IRPanasonicAc ac(33);
 ////////// Global Variable //////////
 bool enableBlynkSend = false;
 bool enableDataLogger = false;
-bool enableTestingMode = false;
 bool enableGoogleSheetsUpdate = false;
+
+bool enableTestingMode = false;
+
+uint32_t blynkDelay = 10000;      // Default 10 seconds
+uint32_t dataLoggerDelay = 5000;  // Default 5 seconds  
+uint32_t gsheetDelay = 60000;     // Default 60 seconds
 
 float autoTemperatureSetpointUpper = 28.0;
 float autoTemperatureSetpointLower = 18.0;

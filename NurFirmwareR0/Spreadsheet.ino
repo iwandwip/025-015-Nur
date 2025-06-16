@@ -24,7 +24,7 @@ void sendToSpreadsheet() {
   }
 
   static uint32_t spreadsheetSendTimer;
-  if (millis() - spreadsheetSendTimer >= 60000) {
+  if (millis() - spreadsheetSendTimer >= gsheetDelay) {
     spreadsheetSendTimer = millis();
 
     if (temperature > autoTemperatureSetpointUpper) {

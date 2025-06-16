@@ -26,6 +26,9 @@ void setup() {
   powerStatus = preferences.getString("status", "HIDUP");
   modeButton = preferences.getInt("mode", 0);
   enableGoogleSheetsUpdate = preferences.getBool("glogEnable", false);
+  blynkDelay = preferences.getUInt("blynkDelay", 10000);
+  dataLoggerDelay = preferences.getUInt("logDelay", 5000);
+  gsheetDelay = preferences.getUInt("glogDelayMs", 60000);
   preferences.end();
 
   menu.initialize(true);

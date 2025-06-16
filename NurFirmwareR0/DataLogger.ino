@@ -11,7 +11,7 @@ void initDataLogger() {
 
 void logSensorData() {
   static uint32_t logIntervalTimer;
-  if (millis() - logIntervalTimer >= DATA_LOGGER_INTERVAL && enableDataLogger) {
+  if (millis() - logIntervalTimer >= dataLoggerDelay && enableDataLogger) {
     logIntervalTimer = millis();
 
     String dataString = timestamp + "," + temperature + "," + humidity + "\n";

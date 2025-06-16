@@ -24,7 +24,7 @@ void blynkTask() {
   timestamp = dateTime.getDateTimeString();
 
   static uint32_t blynkSendTimer;
-  if (millis() - blynkSendTimer >= 10000 && enableBlynkSend) {
+  if (millis() - blynkSendTimer >= blynkDelay && enableBlynkSend) {
     blynkSendTimer = millis();
     Blynk.virtualWrite(VIRTUAL_PIN_TEMPERATURE, temperature);
     Blynk.virtualWrite(VIRTUAL_PIN_HUMIDITY, humidity);
