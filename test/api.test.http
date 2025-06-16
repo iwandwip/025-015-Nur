@@ -1,0 +1,207 @@
+### API Testing File for VS Code REST Client Extension
+### Install the REST Client extension in VS Code to use this file
+
+@baseUrl = http://localhost:3001/api
+@contentType = application/json
+
+### Health Check
+GET {{baseUrl}}/health
+
+### Create a new device
+# @name createDevice
+POST {{baseUrl}}/devices
+Content-Type: {{contentType}}
+
+{
+  "name": "Lab Temperature Sensor 1",
+  "location": "Laboratory Room A",
+  "type": "ESP32"
+}
+
+### Get device ID from previous request
+@deviceId = {{createDevice.response.body.data.id}}
+
+### Get all devices
+GET {{baseUrl}}/devices
+
+### Get devices with pagination
+GET {{baseUrl}}/devices?page=1&pageSize=5
+
+### Search devices
+GET {{baseUrl}}/devices?search=Lab
+
+### Get active devices only
+GET {{baseUrl}}/devices?isActive=true
+
+### Get specific device
+GET {{baseUrl}}/devices/{{deviceId}}
+
+### Update device
+PUT {{baseUrl}}/devices/{{deviceId}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Lab Temperature Sensor 1 - Updated",
+  "location": "Laboratory Room A - Main",
+  "isActive": true
+}
+
+### Create measurement
+POST {{baseUrl}}/measurements
+Content-Type: {{contentType}}
+
+{
+  "temperature": 25.5,
+  "humidity": 65.2,
+  "acState": true,
+  "acTemperature": 24,
+  "deviceId": "{{deviceId}}"
+}
+
+### Create measurement with high temperature (will trigger alert)
+POST {{baseUrl}}/measurements
+Content-Type: {{contentType}}
+
+{
+  "temperature": 30.5,
+  "humidity": 65.2,
+  "deviceId": "{{deviceId}}"
+}
+
+### Get all measurements
+GET {{baseUrl}}/measurements
+
+### Get measurements with pagination
+GET {{baseUrl}}/measurements?page=1&pageSize=10
+
+### Get measurements for specific device
+GET {{baseUrl}}/measurements?deviceId={{deviceId}}
+
+### Get measurements with date range
+GET {{baseUrl}}/measurements?startDate=2025-01-01&endDate=2025-12-31
+
+### Get all alerts
+GET {{baseUrl}}/alerts
+
+### Get unresolved alerts
+GET {{baseUrl}}/alerts?resolved=false
+
+### Get alerts by type
+GET {{baseUrl}}/alerts?type=HIGH_TEMP
+
+### Get alerts for specific device
+GET {{baseUrl}}/alerts?deviceId={{deviceId}}
+
+### Resolve an alert (replace 1 with actual alert ID)
+PUT {{baseUrl}}/alerts/1
+Content-Type: {{contentType}}
+
+{
+  "resolved": true
+}
+
+### Create configuration
+POST {{baseUrl}}/config
+Content-Type: {{contentType}}
+
+{
+  "key": "tempHigh",
+  "value": "28",
+  "description": "High temperature threshold in Celsius"
+}
+
+### Create more configurations
+POST {{baseUrl}}/config
+Content-Type: {{contentType}}
+
+{
+  "key": "tempLow",
+  "value": "18",
+  "description": "Low temperature threshold in Celsius"
+}
+
+###
+POST {{baseUrl}}/config
+Content-Type: {{contentType}}
+
+{
+  "key": "humidityHigh",
+  "value": "80",
+  "description": "High humidity threshold in percentage"
+}
+
+###
+POST {{baseUrl}}/config
+Content-Type: {{contentType}}
+
+{
+  "key": "humidityLow",
+  "value": "30",
+  "description": "Low humidity threshold in percentage"
+}
+
+### Get all configurations
+GET {{baseUrl}}/config
+
+### Get specific configuration
+GET {{baseUrl}}/config?key=tempHigh
+
+### Update configuration
+POST {{baseUrl}}/config
+Content-Type: {{contentType}}
+
+{
+  "key": "tempHigh",
+  "value": "30",
+  "description": "Updated high temperature threshold"
+}
+
+### Delete configuration
+DELETE {{baseUrl}}/config?key=tempLow
+
+### Get statistics for last 24 hours
+GET {{baseUrl}}/stats
+
+### Get statistics for specific device
+GET {{baseUrl}}/stats?deviceId={{deviceId}}
+
+### Get statistics for different periods
+GET {{baseUrl}}/stats?period=1h
+###
+GET {{baseUrl}}/stats?period=24h
+###
+GET {{baseUrl}}/stats?period=7d
+###
+GET {{baseUrl}}/stats?period=30d
+
+### Test error handling - Invalid measurement data
+POST {{baseUrl}}/measurements
+Content-Type: {{contentType}}
+
+{
+  "temperature": "invalid",
+  "humidity": 65.2,
+  "deviceId": "{{deviceId}}"
+}
+
+### Test error handling - Missing device ID
+POST {{baseUrl}}/measurements
+Content-Type: {{contentType}}
+
+{
+  "temperature": 25.5,
+  "humidity": 65.2
+}
+
+### Test error handling - Non-existent device
+POST {{baseUrl}}/measurements
+Content-Type: {{contentType}}
+
+{
+  "temperature": 25.5,
+  "humidity": 65.2,
+  "deviceId": "non-existent-id"
+}
+
+### Delete device (this will cascade delete all related measurements and alerts)
+DELETE {{baseUrl}}/devices/{{deviceId}}

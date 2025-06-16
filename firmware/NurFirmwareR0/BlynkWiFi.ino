@@ -4,8 +4,10 @@
 
 void wifiTask() {
   task.setInitCoreID(1);
-  if (!dateTime.begin()) Serial.println("NTP Client init failed!");
-  else {
+  if (!dateTime.begin()) {
+    Serial.println("NTP Client init failed!");
+    ESP.restart();
+  } else {
     Serial.print("NTP Client init success: ");
     Serial.println(dateTime.getDateTimeString());
   }

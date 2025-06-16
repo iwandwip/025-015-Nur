@@ -7,361 +7,317 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { 
   Thermometer, 
   Droplets, 
-  Power, 
   Wifi, 
-  Battery, 
-  AlertTriangle,
   Activity,
   Download,
   Settings,
   TrendingUp,
-  Shield
+  Calendar
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  Area,
+  AreaChart
+} from "recharts";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { format } from "date-fns";
 
 export default function Dashboard() {
   const [currentTemp, setCurrentTemp] = useState(23.2);
   const [currentHumidity, setCurrentHumidity] = useState(45.8);
-  const [targetTemp, setTargetTemp] = useState(23.0);
-  const [isACOn, setIsACOn] = useState(true);
   const [lastUpdate, setLastUpdate] = useState(new Date().toLocaleTimeString());
   
-  const tempTolerance = 1.0;
-  const tempStatus = Math.abs(currentTemp - targetTemp) <= tempTolerance ? "normal" : "warning";
-  const humidityStatus = currentHumidity >= 30 && currentHumidity <= 60 ? "normal" : "warning";
+  const [chartData, setChartData] = useState<any[]>([]);
+  const [tableData, setTableData] = useState<any[]>([]);
+
+  // Fetch initial data
+  const fetchData = async () => {
+    try {
+      const response = await fetch('/api/measurements?limit=20');
+      const result = await response.json();
+      
+      if (result.data && result.data.length > 0) {
+        setTableData(result.data);
+        
+        // Prepare chart data from the last 10 measurements
+        const chartItems = result.data.slice(0, 10).reverse().map((item: any) => ({
+          time: format(new Date(item.createdAt), "HH:mm"),
+          temperature: item.temperature,
+          humidity: item.humidity
+        }));
+        setChartData(chartItems);
+        
+        // Set current values from the most recent measurement
+        const latest = result.data[0];
+        setCurrentTemp(latest.temperature);
+        setCurrentHumidity(latest.humidity);
+        setLastUpdate(format(new Date(latest.createdAt), "HH:mm:ss"));
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTemp(prev => prev + (Math.random() - 0.5) * 0.2);
-      setCurrentHumidity(prev => prev + (Math.random() - 0.5) * 1);
-      setLastUpdate(new Date().toLocaleTimeString());
+    fetchData();
+    
+    // Simulate real-time updates (in production, this would be from actual sensors)
+    const interval = setInterval(async () => {
+      const newTemp = 23 + (Math.random() - 0.5) * 1;
+      const newHumidity = 45 + (Math.random() - 0.5) * 5;
+      
+      // Save to database
+      try {
+        const response = await fetch('/api/measurements', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            temperature: Number(newTemp.toFixed(1)),
+            humidity: Number(newHumidity.toFixed(1))
+          })
+        });
+        
+        if (response.ok) {
+          const savedMeasurement = await response.json();
+          
+          setCurrentTemp(savedMeasurement.temperature);
+          setCurrentHumidity(savedMeasurement.humidity);
+          setLastUpdate(format(new Date(savedMeasurement.createdAt), "HH:mm:ss"));
+          
+          // Update chart data
+          setChartData(prev => {
+            const newData = [...prev.slice(-9), {
+              time: format(new Date(savedMeasurement.createdAt), "HH:mm"),
+              temperature: savedMeasurement.temperature,
+              humidity: savedMeasurement.humidity
+            }];
+            return newData;
+          });
+          
+          // Update table data
+          setTableData(prev => [savedMeasurement, ...prev.slice(0, 19)]);
+        }
+      } catch (error) {
+        console.error('Error saving measurement:', error);
+      }
     }, 5000);
 
     return () => clearInterval(interval);
   }, []);
 
-  const recentData = [
-    { time: "14:55", temp: 23.1, humidity: 45.2, status: "normal" },
-    { time: "14:50", temp: 23.3, humidity: 45.5, status: "normal" },
-    { time: "14:45", temp: 23.0, humidity: 45.8, status: "normal" },
-    { time: "14:40", temp: 22.9, humidity: 46.1, status: "normal" },
-    { time: "14:35", temp: 23.2, humidity: 45.9, status: "normal" },
-  ];
-
-  const adjustTemp = (increment: boolean) => {
-    setTargetTemp(prev => increment ? prev + 0.1 : prev - 0.1);
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-900 transition-colors duration-700">
-      
-      <div className="absolute inset-0 bg-grid-pattern opacity-5 dark:opacity-10"></div>
-      
-      <div className="relative max-w-7xl mx-auto p-6 space-y-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
         
-        <header className="text-center py-8 space-y-6">
+        <header className="py-6 space-y-4">
           <div className="flex justify-between items-start">
             <div className="flex-1">
-              <div className="inline-flex items-center gap-3 mb-4">
-                <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl shadow-lg">
-                  <Activity className="w-8 h-8 text-white" />
+              <div className="inline-flex items-center gap-3 mb-2">
+                <div className="p-2 bg-gray-900 dark:bg-gray-100 rounded-lg">
+                  <Activity className="w-6 h-6 text-white dark:text-gray-900" />
                 </div>
                 <div className="text-left">
-                  <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
+                  <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
                     Lab Monitor
                   </h1>
-                  <p className="text-lg text-gray-600 dark:text-gray-300 font-medium">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     PT. Hervitama Indonesia
                   </p>
                 </div>
               </div>
-              
-              <p className="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
-                Real-time Environmental Monitoring System for Calibration Laboratory
-                <br />
-                <span className="text-sm">ISO/IEC 17025:2017 Compliant</span>
-              </p>
             </div>
             
             <div className="flex items-center gap-3">
+              <Badge variant="outline" className="flex items-center gap-2 px-3 py-1 bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <Wifi className="w-3 h-3" />
+                Online
+              </Badge>
               <ThemeToggle />
-              <Button variant="outline" size="icon" className="bg-background/50 backdrop-blur-sm border-border/50">
+              <Button variant="outline" size="icon" className="border-gray-300 dark:border-gray-700">
                 <Settings className="w-4 h-4" />
               </Button>
             </div>
           </div>
-
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <Badge variant="outline" className="flex items-center gap-2 px-4 py-2 bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700 text-green-700 dark:text-green-300">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <Wifi className="w-4 h-4" />
-              System Online
-            </Badge>
-            <Badge variant="outline" className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-300">
-              <Battery className="w-4 h-4" />
-              PLN Active
-            </Badge>
-            <Badge variant="secondary" className="px-4 py-2 bg-gray-100 dark:bg-gray-800">
-              Updated: {lastUpdate}
-            </Badge>
-          </div>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-          
-          <Card className="group hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 hover:-translate-y-2 border-0 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/50 dark:to-blue-800/50 backdrop-blur-sm overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-transparent group-hover:from-blue-400/20 transition-colors duration-500"></div>
-            <CardHeader className="pb-3 relative">
-              <CardTitle className="flex items-center gap-3 text-blue-700 dark:text-blue-300">
-                <div className="p-2 bg-blue-500 rounded-lg shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <Thermometer className="w-5 h-5 text-white" />
-                </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card className="border-gray-200 dark:border-gray-800 shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg text-gray-900 dark:text-gray-100">
+                <Thermometer className="w-5 h-5" />
                 Temperature
               </CardTitle>
             </CardHeader>
-            <CardContent className="relative">
-              <div className="space-y-3">
-                <div className="text-4xl font-bold text-blue-900 dark:text-blue-100 group-hover:scale-105 transition-transform duration-300">
-                  {currentTemp.toFixed(1)}°C
-                </div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <Badge 
-                    variant={tempStatus === "normal" ? "default" : "destructive"}
-                    className="text-xs font-medium shadow-sm"
-                  >
-                    {tempStatus === "normal" ? "✓ Normal" : "⚠ Warning"}
-                  </Badge>
-                  <span className="text-sm text-gray-600 dark:text-gray-300">
-                    Target: {targetTemp.toFixed(1)}°C ±{tempTolerance}°C
-                  </span>
-                </div>
+            <CardContent>
+              <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                {currentTemp.toFixed(1)}°C
               </div>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                Last update: {lastUpdate}
+              </p>
             </CardContent>
           </Card>
 
-          <Card className="group hover:shadow-2xl hover:shadow-cyan-500/10 transition-all duration-500 hover:-translate-y-2 border-0 bg-gradient-to-br from-cyan-50 to-cyan-100 dark:from-cyan-900/50 dark:to-cyan-800/50 backdrop-blur-sm overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/10 to-transparent group-hover:from-cyan-400/20 transition-colors duration-500"></div>
-            <CardHeader className="pb-3 relative">
-              <CardTitle className="flex items-center gap-3 text-cyan-700 dark:text-cyan-300">
-                <div className="p-2 bg-cyan-500 rounded-lg shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <Droplets className="w-5 h-5 text-white" />
-                </div>
+          <Card className="border-gray-200 dark:border-gray-800 shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg text-gray-900 dark:text-gray-100">
+                <Droplets className="w-5 h-5" />
                 Humidity
               </CardTitle>
             </CardHeader>
-            <CardContent className="relative">
-              <div className="space-y-3">
-                <div className="text-4xl font-bold text-cyan-900 dark:text-cyan-100 group-hover:scale-105 transition-transform duration-300">
-                  {currentHumidity.toFixed(1)}%
-                </div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <Badge 
-                    variant={humidityStatus === "normal" ? "default" : "destructive"}
-                    className="text-xs font-medium shadow-sm"
-                  >
-                    {humidityStatus === "normal" ? "✓ Normal" : "⚠ Warning"}
-                  </Badge>
-                  <span className="text-sm text-gray-600 dark:text-gray-300">
-                    Range: 30-60%
-                  </span>
-                </div>
+            <CardContent>
+              <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                {currentHumidity.toFixed(1)}%
               </div>
-            </CardContent>
-          </Card>
-
-          <Card className="group hover:shadow-2xl hover:shadow-green-500/10 transition-all duration-500 hover:-translate-y-2 border-0 bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/50 dark:to-emerald-800/50 backdrop-blur-sm overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-green-400/10 to-transparent group-hover:from-green-400/20 transition-colors duration-500"></div>
-            <CardHeader className="pb-3 relative">
-              <CardTitle className="flex items-center gap-3 text-green-700 dark:text-green-300">
-                <div className="p-2 bg-green-500 rounded-lg shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <Power className="w-5 h-5 text-white" />
-                </div>
-                AC Status
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="relative">
-              <div className="space-y-3">
-                <div className="text-3xl font-bold text-green-900 dark:text-green-100 group-hover:scale-105 transition-transform duration-300">
-                  {isACOn ? "ACTIVE" : "STANDBY"}
-                </div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <Badge 
-                    variant={isACOn ? "default" : "secondary"}
-                    className="text-xs font-medium shadow-sm"
-                  >
-                    {isACOn ? "🟢 Running" : "⚫ Stopped"}
-                  </Badge>
-                  <span className="text-sm text-gray-600 dark:text-gray-300">
-                    Auto Mode
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="group hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 hover:-translate-y-2 border-0 bg-gradient-to-br from-purple-50 to-pink-100 dark:from-purple-900/50 dark:to-pink-800/50 backdrop-blur-sm overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-400/10 to-transparent group-hover:from-purple-400/20 transition-colors duration-500"></div>
-            <CardHeader className="pb-3 relative">
-              <CardTitle className="flex items-center gap-3 text-purple-700 dark:text-purple-300">
-                <div className="p-2 bg-purple-500 rounded-lg shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <Shield className="w-5 h-5 text-white" />
-                </div>
-                System Status
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="relative">
-              <div className="space-y-3">
-                <div className="text-3xl font-bold text-purple-900 dark:text-purple-100 group-hover:scale-105 transition-transform duration-300">
-                  OPTIMAL
-                </div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <Badge variant="default" className="text-xs font-medium shadow-sm">
-                    ✅ All Systems OK
-                  </Badge>
-                </div>
-              </div>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                Last update: {lastUpdate}
+              </p>
             </CardContent>
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-          
-          <Card className="xl:col-span-2 hover:shadow-2xl transition-all duration-500 border-0 bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl">
-            <CardHeader className="border-b border-gray-200/50 dark:border-gray-700/50">
-              <CardTitle className="flex items-center gap-3 text-gray-800 dark:text-gray-200">
-                <TrendingUp className="w-6 h-6 text-indigo-500" />
-                Recent Measurements
-                <Badge variant="secondary" className="ml-auto text-xs">
-                  Live Data
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="space-y-3">
-                {recentData.map((data, index) => (
-                  <div 
-                    key={index}
-                    className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-xl border border-gray-200/50 dark:border-gray-600/50 hover:shadow-lg hover:scale-[1.02] transition-all duration-300 group"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center text-white font-bold shadow-lg group-hover:scale-110 transition-transform duration-300">
-                        {data.time.split(':')[1]}
-                      </div>
-                      <span className="font-semibold text-gray-700 dark:text-gray-300">{data.time}</span>
-                    </div>
-                    <div className="flex gap-6">
-                      <span className="flex items-center gap-2 text-blue-700 dark:text-blue-300 font-medium">
-                        <Thermometer className="w-4 h-4" />
-                        {data.temp}°C
-                      </span>
-                      <span className="flex items-center gap-2 text-cyan-700 dark:text-cyan-300 font-medium">
-                        <Droplets className="w-4 h-4" />
-                        {data.humidity}%
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-2xl transition-all duration-500 border-0 bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl">
-            <CardHeader className="border-b border-gray-200/50 dark:border-gray-700/50">
-              <CardTitle className="flex items-center gap-3 text-gray-800 dark:text-gray-200">
-                <Settings className="w-6 h-6 text-indigo-500" />
-                Control Panel
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6 space-y-6">
-              <div className="space-y-4">
-                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  Target Temperature
-                </label>
-                <div className="flex items-center justify-center gap-3">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => adjustTemp(false)}
-                    className="hover:bg-red-50 hover:border-red-200 hover:text-red-700 transition-colors duration-300"
-                  >
-                    -
-                  </Button>
-                  <div className="px-6 py-3 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900 dark:to-purple-900 rounded-xl text-center min-w-[80px] font-bold text-lg border border-indigo-200 dark:border-indigo-700">
-                    {targetTemp.toFixed(1)}°C
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => adjustTemp(true)}
-                    className="hover:bg-green-50 hover:border-green-200 hover:text-green-700 transition-colors duration-300"
-                  >
-                    +
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  AC Control
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <Button 
-                    variant={isACOn ? "default" : "outline"} 
-                    onClick={() => setIsACOn(true)}
-                    className="transition-all duration-300 hover:scale-105 active:scale-95"
-                  >
-                    ON
-                  </Button>
-                  <Button 
-                    variant={!isACOn ? "default" : "outline"} 
-                    onClick={() => setIsACOn(false)}
-                    className="transition-all duration-300 hover:scale-105 active:scale-95"
-                  >
-                    OFF
-                  </Button>
-                </div>
-              </div>
-
-              <div className="pt-6 border-t border-gray-200/50 dark:border-gray-700/50 space-y-3">
-                <Button className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95">
-                  <Download className="w-4 h-4 mr-2" />
-                  Export Data Log
-                </Button>
-                <Button variant="outline" className="w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-300">
-                  View Historical Data
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <Card className="hover:shadow-2xl transition-all duration-500 border-0 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 backdrop-blur-xl">
-          <CardHeader className="border-b border-green-200/50 dark:border-green-700/50">
-            <CardTitle className="flex items-center gap-3 text-green-800 dark:text-green-200">
-              <Shield className="w-6 h-6" />
-              ISO/IEC 17025:2017 Compliance Status
+        <Card className="border-gray-200 dark:border-gray-800 shadow-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-gray-100">
+              <TrendingUp className="w-5 h-5" />
+              Real-time Monitoring Chart
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="group text-center p-6 bg-white/80 dark:bg-gray-800/80 rounded-2xl border border-green-200/50 dark:border-green-700/50 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                <div className="text-4xl font-bold text-green-600 mb-2 group-hover:scale-110 transition-transform duration-300">✓</div>
-                <div className="text-lg font-semibold text-green-800 dark:text-green-200 mb-1">Temperature Control</div>
-                <div className="text-sm text-green-600 dark:text-green-400">18-27°C Range Maintained</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">Compliance: 100%</div>
-              </div>
-              <div className="group text-center p-6 bg-white/80 dark:bg-gray-800/80 rounded-2xl border border-green-200/50 dark:border-green-700/50 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                <div className="text-4xl font-bold text-green-600 mb-2 group-hover:scale-110 transition-transform duration-300">✓</div>
-                <div className="text-lg font-semibold text-green-800 dark:text-green-200 mb-1">Data Integrity</div>
-                <div className="text-sm text-green-600 dark:text-green-400">Continuous Logging Active</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">Uptime: 99.9%</div>
-              </div>
-              <div className="group text-center p-6 bg-white/80 dark:bg-gray-800/80 rounded-2xl border border-green-200/50 dark:border-green-700/50 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                <div className="text-4xl font-bold text-green-600 mb-2 group-hover:scale-110 transition-transform duration-300">✓</div>
-                <div className="text-lg font-semibold text-green-800 dark:text-green-200 mb-1">Alert System</div>
-                <div className="text-sm text-green-600 dark:text-green-400">Real-time Monitoring</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">Response: &lt; 1s</div>
-              </div>
+          <CardContent>
+            <div className="h-80 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="temperatureGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#6b7280" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#6b7280" stopOpacity={0}/>
+                    </linearGradient>
+                    <linearGradient id="humidityGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#9ca3af" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#9ca3af" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis 
+                    dataKey="time" 
+                    stroke="#6b7280"
+                    fontSize={12}
+                  />
+                  <YAxis 
+                    yAxisId="temp"
+                    stroke="#6b7280"
+                    fontSize={12}
+                    domain={[20, 26]}
+                  />
+                  <YAxis 
+                    yAxisId="humidity"
+                    orientation="right"
+                    stroke="#9ca3af"
+                    fontSize={12}
+                    domain={[30, 60]}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '6px'
+                    }}
+                  />
+                  <Legend />
+                  <Area
+                    yAxisId="temp"
+                    type="monotone"
+                    dataKey="temperature"
+                    stroke="#6b7280"
+                    fillOpacity={1}
+                    fill="url(#temperatureGradient)"
+                    strokeWidth={2}
+                    name="Temperature (°C)"
+                  />
+                  <Area
+                    yAxisId="humidity"
+                    type="monotone"
+                    dataKey="humidity"
+                    stroke="#9ca3af"
+                    fillOpacity={1}
+                    fill="url(#humidityGradient)"
+                    strokeWidth={2}
+                    name="Humidity (%)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-gray-200 dark:border-gray-800 shadow-sm">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-gray-100">
+                <Calendar className="w-5 h-5" />
+                Measurement History
+              </CardTitle>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="border-gray-300 dark:border-gray-700"
+                onClick={() => {
+                  window.location.href = '/api/measurements/export';
+                }}
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Export CSV
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-gray-700 dark:text-gray-300">Time</TableHead>
+                    <TableHead className="text-gray-700 dark:text-gray-300">Date</TableHead>
+                    <TableHead className="text-gray-700 dark:text-gray-300">Temperature (°C)</TableHead>
+                    <TableHead className="text-gray-700 dark:text-gray-300">Humidity (%)</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {tableData.map((row) => (
+                    <TableRow key={row.id}>
+                      <TableCell className="text-gray-900 dark:text-gray-100">
+                        {format(new Date(row.createdAt), "HH:mm:ss")}
+                      </TableCell>
+                      <TableCell className="text-gray-600 dark:text-gray-400">
+                        {format(new Date(row.createdAt), "dd/MM/yyyy")}
+                      </TableCell>
+                      <TableCell className="text-gray-900 dark:text-gray-100">
+                        {row.temperature}
+                      </TableCell>
+                      <TableCell className="text-gray-900 dark:text-gray-100">
+                        {row.humidity}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           </CardContent>
         </Card>
