@@ -14,19 +14,14 @@ import {
   TrendingUp,
   Calendar
 } from "lucide-react";
-import { useState, useEffect } from "react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  Area,
-  AreaChart
-} from "recharts";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import dynamic from 'next/dynamic';
+
+// Lazy load chart component
+const MonitoringChart = dynamic(() => import('@/components/monitoring-chart'), { 
+  ssr: false,
+  loading: () => <div className="h-80 w-full animate-pulse bg-gray-100 dark:bg-gray-800 rounded"></div>
+});
 import {
   Table,
   TableBody,
@@ -44,10 +39,12 @@ export default function Dashboard() {
   
   const [chartData, setChartData] = useState<any[]>([]);
   const [tableData, setTableData] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Fetch initial data
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
+      setIsLoading(true);
       const response = await fetch('/api/measurements?limit=20');
       const result = await response.json();
       
@@ -70,13 +67,15 @@ export default function Dashboard() {
       }
     } catch (error) {
       console.error('Error fetching data:', error);
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchData();
     
-    // Simulate real-time updates (in production, this would be from actual sensors)
+    // Reduce interval to 30 seconds for less DB load
     const interval = setInterval(async () => {
       const newTemp = 23 + (Math.random() - 0.5) * 1;
       const newHumidity = 45 + (Math.random() - 0.5) * 5;
@@ -90,12 +89,14 @@ export default function Dashboard() {
           },
           body: JSON.stringify({
             temperature: Number(newTemp.toFixed(1)),
-            humidity: Number(newHumidity.toFixed(1))
+            humidity: Number(newHumidity.toFixed(1)),
+            deviceId: 'demo-device' // Add required deviceId
           })
         });
         
         if (response.ok) {
-          const savedMeasurement = await response.json();
+          const result = await response.json();
+          const savedMeasurement = result.data;
           
           setCurrentTemp(savedMeasurement.temperature);
           setCurrentHumidity(savedMeasurement.humidity);
@@ -117,10 +118,10 @@ export default function Dashboard() {
       } catch (error) {
         console.error('Error saving measurement:', error);
       }
-    }, 5000);
+    }, 30000); // Changed from 5000 to 30000 (30 seconds)
 
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchData]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
@@ -203,67 +204,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="h-80 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="temperatureGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6b7280" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#6b7280" stopOpacity={0}/>
-                    </linearGradient>
-                    <linearGradient id="humidityGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#9ca3af" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#9ca3af" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis 
-                    dataKey="time" 
-                    stroke="#6b7280"
-                    fontSize={12}
-                  />
-                  <YAxis 
-                    yAxisId="temp"
-                    stroke="#6b7280"
-                    fontSize={12}
-                    domain={[20, 26]}
-                  />
-                  <YAxis 
-                    yAxisId="humidity"
-                    orientation="right"
-                    stroke="#9ca3af"
-                    fontSize={12}
-                    domain={[30, 60]}
-                  />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'rgba(255, 255, 255, 0.95)', 
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '6px'
-                    }}
-                  />
-                  <Legend />
-                  <Area
-                    yAxisId="temp"
-                    type="monotone"
-                    dataKey="temperature"
-                    stroke="#6b7280"
-                    fillOpacity={1}
-                    fill="url(#temperatureGradient)"
-                    strokeWidth={2}
-                    name="Temperature (°C)"
-                  />
-                  <Area
-                    yAxisId="humidity"
-                    type="monotone"
-                    dataKey="humidity"
-                    stroke="#9ca3af"
-                    fillOpacity={1}
-                    fill="url(#humidityGradient)"
-                    strokeWidth={2}
-                    name="Humidity (%)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+              <MonitoringChart data={chartData} />
             </div>
           </CardContent>
         </Card>

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 import { successResponse, errorResponse, paginatedResponse, validatePaginationParams, handleApiError } from '@/lib/api-utils';
 import { MeasurementCreateInput } from '@/lib/types';
+import { apiCache } from '@/lib/api-cache';
 
 export async function GET(request: Request) {
   try {
@@ -10,6 +11,15 @@ export async function GET(request: Request) {
     const deviceId = searchParams.get('deviceId');
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
+    
+    // Create cache key from query params
+    const cacheKey = `measurements:${deviceId || 'all'}:${page}:${pageSize}:${startDate || ''}:${endDate || ''}`;
+    
+    // Check cache first
+    const cached = apiCache.get(cacheKey);
+    if (cached) {
+      return cached;
+    }
     
     const where: any = {};
     
@@ -48,7 +58,12 @@ export async function GET(request: Request) {
       prisma.measurement.count({ where })
     ]);
     
-    return paginatedResponse(measurements, total, page, pageSize);
+    const response = paginatedResponse(measurements, total, page, pageSize);
+    
+    // Cache for 30 seconds
+    apiCache.set(cacheKey, response, 30000);
+    
+    return response;
   } catch (error) {
     return handleApiError(error);
   }
@@ -62,18 +77,22 @@ export async function POST(request: Request) {
       return errorResponse('Temperature and humidity must be numbers', 400);
     }
     
-    if (!body.deviceId) {
-      return errorResponse('Device ID is required', 400);
-    }
+    // Use demo device if no deviceId provided
+    const deviceId = body.deviceId || 'demo-device';
     
-    // Check if device exists
-    const device = await prisma.device.findUnique({
-      where: { id: body.deviceId }
+    // Ensure demo device exists
+    await prisma.device.upsert({
+      where: { id: 'demo-device' },
+      update: { lastSeen: new Date() },
+      create: {
+        id: 'demo-device',
+        name: 'Lab Sensor Demo',
+        location: 'PT. Hervitama Indonesia',
+        type: 'ESP32',
+        isActive: true,
+        lastSeen: new Date(),
+      },
     });
-    
-    if (!device) {
-      return errorResponse('Device not found', 404);
-    }
     
     // Create measurement and update device lastSeen
     const [measurement] = await prisma.$transaction([
@@ -83,20 +102,24 @@ export async function POST(request: Request) {
           humidity: body.humidity,
           acState: body.acState || false,
           acTemperature: body.acTemperature,
-          deviceId: body.deviceId
+          deviceId: deviceId
         },
         include: {
           device: true
         }
       }),
       prisma.device.update({
-        where: { id: body.deviceId },
+        where: { id: deviceId },
         data: { lastSeen: new Date() }
       })
     ]);
     
-    // Check for alert conditions
-    await checkAlertConditions(measurement);
+    // Check for alert conditions (async, don't await to improve response time)
+    checkAlertConditions(measurement).catch(console.error);
+    
+    // Clear measurements cache
+    apiCache.delete(`measurements:all:1:20:::`);
+    apiCache.delete(`measurements:${deviceId}:1:20:::`);
     
     return successResponse(measurement, 201);
   } catch (error) {

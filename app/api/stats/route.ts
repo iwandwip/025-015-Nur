@@ -39,7 +39,7 @@ export async function GET(request: Request) {
       where.deviceId = deviceId;
     }
     
-    // Get measurements for statistics
+    // Get measurements for statistics with limit to prevent memory issues
     const measurements = await prisma.measurement.findMany({
       where,
       select: {
@@ -49,7 +49,8 @@ export async function GET(request: Request) {
       },
       orderBy: {
         createdAt: 'asc'
-      }
+      },
+      take: 1000 // Limit to 1000 recent measurements
     });
     
     if (measurements.length === 0) {
