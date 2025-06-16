@@ -13,6 +13,7 @@ void acPowerOn() {
 #if SEND_DAIKIN
   ac.send();
 #endif
+
 #elif AC_CONTROL_TYPE == PANASONIC
   debug.startPrint(LOG_AC);
   debug.continuePrint("AC Type", "PANASONIC", LOG_AC);
@@ -28,6 +29,7 @@ void acPowerOn() {
 #if SEND_PANASONIC_AC
   ac.send();
 #endif
+
 #endif
 }
 
@@ -41,6 +43,7 @@ void acPowerOff() {
 #if SEND_DAIKIN
   ac.send();
 #endif
+
 #elif AC_CONTROL_TYPE == PANASONIC
   debug.startPrint(LOG_AC);
   debug.continuePrint("AC Type", "PANASONIC", LOG_AC);
@@ -50,6 +53,7 @@ void acPowerOff() {
 #if SEND_PANASONIC_AC
   ac.send();
 #endif
+
 #endif
 }
 
@@ -63,6 +67,7 @@ void acSetTemperature(float _temperature) {
 #if SEND_DAIKIN
   ac.send();
 #endif
+
 #elif AC_CONTROL_TYPE == PANASONIC
   debug.startPrint(LOG_AC);
   debug.continuePrint("AC Type", "PANASONIC", LOG_AC);
@@ -71,5 +76,6 @@ void acSetTemperature(float _temperature) {
 #if SEND_PANASONIC_AC
   ac.send();
 #endif
+
 #endif
 }

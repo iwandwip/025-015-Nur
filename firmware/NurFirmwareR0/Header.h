@@ -21,6 +21,7 @@
 #include "Preferences.h"
 #include "WiFi.h"
 #include "WiFiClientSecure.h"
+#include "HTTPClient.h"
 #include "BlynkWiFi.h"
 #include "BlynkSimpleEsp32.h"
 #include "IRremoteESP8266.h"
@@ -62,7 +63,7 @@ DigitalIn buttonOk(39);
 
 ////////// Output Module //////////
 LcdMenu menu(0x27, 16, 2);
-DigitalOut buzzer(2);  // LED_BUILTIN
+DigitalOut buzzer(14);  // LED_BUILTIN
 DigitalOut ledRed(4);
 DigitalOut ledGreen(16);
 DigitalOut ledBlue(17);
@@ -83,7 +84,7 @@ bool enableGoogleSheetsUpdate = false;
 bool enableTestingMode = false;
 
 uint32_t blynkDelay = 10000;      // Default 10 seconds
-uint32_t dataLoggerDelay = 5000;  // Default 5 seconds  
+uint32_t dataLoggerDelay = 5000;  // Default 5 seconds
 uint32_t gsheetDelay = 60000;     // Default 60 seconds
 
 float autoTemperatureSetpointUpper = 28.0;

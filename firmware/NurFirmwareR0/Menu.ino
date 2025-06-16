@@ -1,7 +1,8 @@
 void menuDisplayCallback() {
-  static auto menuMain = menu.createMenu(menu.begin(11), "Temp: ", "Hum : ", "AC Control", "Testing Mode", "Blynk Enable", "Log Enable", "GLog Enable", "Blynk Delay", "Log Delay", "GLog Delay", "Delete Log");
-  menu.formatMenu(menuMain, 0, "Temp : %5.2f", temperature);
-  menu.formatMenu(menuMain, 1, "Hum  : %5.2f", humidity);
+  static auto menuMain = menu.createMenu(menu.begin(12), "AC  : ", "Temp: ", "Hum : ", "AC Control", "Testing Mode", "Blynk Enable", "Log Enable", "GLog Enable", "Blynk Delay", "Log Delay", "GLog Delay", "Delete Log");
+  menu.formatMenu(menuMain, 0, "AC   : %5.2f", temperatureSetpoint);
+  menu.formatMenu(menuMain, 1, "Temp : %5.2f", temperature);
+  menu.formatMenu(menuMain, 2, "Hum  : %5.2f", humidity);
   menu.onSelect(menuMain, "AC Control", []() {
     static auto menuACControl = menu.createMenu(menu.begin(3), "Mode: AUTO", "Toggle", "Back");
     menu.formatMenu(menuACControl, 0, "Mode: %s", modeButton ? "AUTO" : "MANUAL");
