@@ -25,6 +25,8 @@ void setup() {
   temperatureSetpoint = preferences.getFloat("setpoint", 25.0);
   powerStatus = preferences.getString("status", "HIDUP");
   modeButton = preferences.getInt("mode", 0);
+  enableBlynkSend = preferences.getBool("blynkEnable", false);
+  enableDataLogger = preferences.getBool("logEnable", false);
   enableGoogleSheetsUpdate = preferences.getBool("glogEnable", false);
   blynkDelay = preferences.getUInt("blynkDelay", 10000);
   dataLoggerDelay = preferences.getUInt("logDelay", 5000);

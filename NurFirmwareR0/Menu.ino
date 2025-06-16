@@ -81,6 +81,9 @@ void menuDisplayCallback() {
     menu.formatMenu(menuBlynkEnable, 0, "Sta : %s", enableBlynkSend ? "Enable" : "Disable");
     menu.onSelect(menuBlynkEnable, "Toggle", []() {
       enableBlynkSend = !enableBlynkSend;
+      preferences.begin("nur", false);
+      preferences.putBool("blynkEnable", enableBlynkSend);
+      preferences.end();
       auto menuBlynkStatus = menu.createMenu(menu.begin(2), "Blynk Set To", "Enable");
       menu.formatMenu(menuBlynkStatus, 1, "%s", enableBlynkSend ? "Enable" : "Disable");
       menu.showMenu(menuBlynkStatus, true);
@@ -98,6 +101,9 @@ void menuDisplayCallback() {
     menu.formatMenu(menuLoggerEnable, 0, "Sta : %s", enableDataLogger ? "Enable" : "Disable");
     menu.onSelect(menuLoggerEnable, "Toggle", []() {
       enableDataLogger = !enableDataLogger;
+      preferences.begin("nur", false);
+      preferences.putBool("logEnable", enableDataLogger);
+      preferences.end();
       auto menuLoggerStatus = menu.createMenu(menu.begin(2), "Logger Set To", "Enable");
       menu.formatMenu(menuLoggerStatus, 1, "%s", enableDataLogger ? "Enable" : "Disable");
       menu.showMenu(menuLoggerStatus, true);
