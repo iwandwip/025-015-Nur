@@ -88,6 +88,12 @@ void setup() {
 }
 
 void loop() {
+  static uint32_t apiDataSendTimer;
+  if (millis() - apiDataSendTimer >= 1000) {
+    sendDataAPI();
+    apiDataSendTimer = millis();
+  }
+
   logic.run();
   Blynk.run();
   blynkTask();
