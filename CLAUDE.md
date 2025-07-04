@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a hybrid IoT project combining a React web application frontend with ESP32/ESP8266 firmware for laboratory temperature control and data logging. The project is titled "Pengaturan Suhu Laboratorium Kalibrasi Dengan Sistem Perekaman Data Pada Pt Hervitama Indonesia" (Laboratory Temperature Control with Data Recording System at PT Hervitama Indonesia).
+This is a full-stack monorepo starter template designed for modern web applications. It combines a React frontend with a Node.js backend, shared TypeScript utilities, and includes optional firmware development capabilities for IoT projects.
 
 ## Architecture
 
@@ -13,114 +13,183 @@ This is a hybrid IoT project combining a React web application frontend with ESP
 - **UI Library**: Shadcn/ui components with Radix UI primitives
 - **Styling**: TailwindCSS v4 with utility classes
 - **Build Tool**: Vite with ESLint for code quality
-- **Location**: Root directory (`/src`, `/components`, etc.)
+- **Location**: `frontend/` package
 
-### Firmware (Embedded Systems)
+### Backend (API Server)
+- **Framework**: Node.js + Express + TypeScript
+- **Database**: Prisma ORM + SQLite (configurable)
+- **Authentication**: JWT with bcrypt password hashing
+- **Validation**: Zod schemas for type-safe validation
+- **Location**: `backend/` package
+
+### Shared Package
+- **Purpose**: Common types, utilities, and validation schemas
+- **Types**: Authentication, API responses, user management
+- **Utils**: Validation helpers, constants, string utilities
+- **Location**: `shared/` package
+
+### Optional: Firmware (IoT Development)
 - **Platform**: ESP32/ESP8266 microcontrollers using Arduino framework
 - **Build System**: PlatformIO with multiple project configurations
-- **Main Firmware**: `firmware/NurFirmwareR0/` - Core temperature control system
-- **Test Projects**: `firmware/IRRemoteTest/` and `firmware/Testing/` - IR remote and sensor testing
-- **Key Features**:
-  - Temperature/humidity monitoring (AHT sensor)
-  - AC control via IR (Daikin/Panasonic support)
-  - Data logging to SD card and Google Sheets
-  - Blynk IoT integration
-  - LCD menu interface with button controls
-
-### Key Dependencies
-- **Firmware**: Kinematrix framework (custom embedded library), IRremoteESP8266, Blynk, WiFi libraries
-- **Frontend**: React 19, Lucide icons, class-variance-authority for component variants
+- **Location**: `firmware/` directory (not part of PNPM workspace)
 
 ## Common Development Commands
 
-### Frontend Development
+### Monorepo Commands (Root)
 ```bash
-# Install dependencies
-npm install
+# Install all dependencies
+pnpm install
 
-# Start development server
-npm run dev
+# Start all packages in development
+pnpm dev
 
-# Build for production
-npm run build
+# Start specific packages
+pnpm dev:fe        # Frontend only
+pnpm dev:be        # Backend only
 
-# Run linting
-npm run lint
+# Build all packages
+pnpm build
 
-# Preview production build
-npm run preview
+# Build shared package only
+pnpm build:shared
+
+# Clean all build outputs
+pnpm clean
+
+# Setup project (install + build shared + setup database)
+pnpm setup
 ```
 
-### Firmware Development
+### Frontend Development
 ```bash
-# Build firmware (from any platformio.ini directory)
-pio run
+# Navigate to frontend
+cd frontend
 
-# Build for specific board
-pio run -e esp32dev      # ESP32
-pio run -e nodemcuv2     # ESP8266
+# Start development server
+pnpm dev
 
-# Upload to device
-pio run -t upload
-pio run -e esp32dev -t upload
+# Build for production
+pnpm build
 
-# Monitor serial output
-pio device monitor
+# Run linting
+pnpm lint
 
-# Build with specific locale (for IR projects)
-pio run -e en-AU         # English (Australian)
-pio run -e de-DE         # German (other locales: en-US, fr-FR, es-ES, pt-BR, ru-RU, zh-CN, it-IT, sv-SE)
+# Preview production build
+pnpm preview
+```
+
+### Backend Development
+```bash
+# Navigate to backend
+cd backend
+
+# Start development server
+pnpm dev
+
+# Database commands
+pnpm db:generate    # Generate Prisma client
+pnpm db:push       # Push schema to database
+pnpm db:migrate    # Create migrations
+pnpm db:studio     # Open Prisma Studio GUI
+pnpm db:reset      # Reset database
+pnpm setup         # Generate client + push schema
+```
+
+### Shared Package Development
+```bash
+# Navigate to shared
+cd shared
+
+# Build TypeScript
+pnpm build
+
+# Watch mode for development
+pnpm dev
 ```
 
 ## Project Structure
 
-### Main Firmware Components (`firmware/NurFirmwareR0/`)
-- `NurFirmwareR0.ino` - Main program with setup/loop and task coordination
-- `Header.h` - Global includes, pin definitions, and variable declarations
-- `ACControl.h/.ino` - Air conditioning control logic
-- `BlynkWiFi.h/.ino` - IoT connectivity and remote monitoring
-- `DataLogger.ino` - SD card data logging functionality
-- `Spreadsheet.ino` - Google Sheets integration
-- `Service.ino` - Core system services and sensor management
-- `Menu.ino` - LCD interface and user interaction
-- `USBComs.ino` - Serial communication protocols
+### Monorepo Layout
+```
+/
+├── frontend/          # React + Vite application
+├── backend/           # Node.js + Express API
+├── shared/            # Shared TypeScript utilities
+├── firmware/          # Optional: ESP32/Arduino projects
+├── package.json       # Root workspace configuration
+└── pnpm-workspace.yaml # PNPM workspace definition
+```
 
-### Test and Development Projects
-- `firmware/IRRemoteTest/` - IR remote control testing for different AC brands
-- `firmware/Testing/` - Hardware component testing (sensors, LCD, SD card)
+### Backend Structure
+```
+backend/
+├── src/
+│   ├── index.ts       # Express server entry point
+│   ├── routes/        # API route handlers
+│   ├── controllers/   # Business logic
+│   ├── middleware/    # Auth, validation, etc.
+│   └── utils/         # Backend utilities
+├── prisma/
+│   └── schema.prisma  # Database schema
+├── .env              # Environment variables
+└── tsconfig.json     # TypeScript configuration
+```
 
-### Hardware Configuration
-- **Main Board**: ESP32 development board
-- **Sensors**: AHT10 temperature/humidity sensor
-- **Display**: 16x2 LCD with I2C interface (address 0x27)
-- **Controls**: Two buttons (GPIO 36, 39) for menu navigation
-- **Outputs**: RGB LED indicators (GPIO 4, 16, 17), buzzer (GPIO 14)
-- **IR Transmitter**: GPIO 33 for AC control
-- **Storage**: SD card module (CS on GPIO 5)
+### Shared Package Structure
+```
+shared/
+├── src/
+│   ├── types/         # TypeScript type definitions
+│   │   ├── auth.ts    # Authentication types
+│   │   └── api.ts     # API response types
+│   └── utils/         # Utility functions
+│       ├── validation.ts  # Validation helpers
+│       └── constants.ts   # App constants
+└── dist/             # Built TypeScript output
+```
 
 ## Development Notes
 
-### PlatformIO Configuration
-- All firmware projects use shared library directories (`lib_extra_dirs = ../../`)
-- Deep dependency resolution enabled (`lib_ldf_mode = deep+`)
-- Standard monitor speed: 115200 baud
-- Framework: Arduino with ESP32/ESP8266 platform support
+### Database Schema
+- **User Management**: Basic user system with roles (ADMIN, USER)
+- **Content Management**: Post system for blog/CMS functionality
+- **Extensible**: Easy to add new models for your specific use case
 
-### Firmware Architecture Patterns
-- Uses EasyLogic system for condition-based automation
-- Modular sensor management with SensorModule framework
-- Task-based architecture with WiFi and background processing
-- Preference storage for persistent configuration
-- Custom debug logging with multiple log levels (SENSOR, COMS, NOTIF, LOGGER, AC, BLYNK)
+### Authentication System
+- JWT-based authentication with refresh tokens
+- Bcrypt password hashing
+- Role-based access control ready
+- Zod validation for all auth endpoints
 
-### AC Control System
-- Supports both Daikin and Panasonic AC units via IR
-- Conditional compilation based on `AC_CONTROL_TYPE` definition
-- Temperature setpoint management with automatic control logic
-- Manual and automatic operation modes
+### Type Safety
+- Shared types between frontend and backend
+- Zod schemas for runtime validation
+- TypeScript strict mode enabled
+- Auto-generated Prisma types
 
-### Data Integration
-- Real-time data logging to SD card in CSV format
-- Google Sheets integration for cloud data storage
-- Blynk platform integration for remote monitoring
-- Configurable delays for different data transmission methods
+### Development Workflow
+1. Make changes to shared package types/utils
+2. Build shared package: `pnpm build:shared`
+3. Backend and frontend automatically get updated types
+4. Develop features with full type safety
+
+### Environment Variables
+- Development defaults provided in `.env`
+- Production values should be set in deployment
+- Database URL, JWT secrets, CORS settings configurable
+
+## Extending the Starter
+
+This starter is designed to be:
+- **Flexible**: Add new packages to the monorepo as needed
+- **Scalable**: Database schema and types are easily extensible
+- **Modern**: Uses latest tooling and best practices
+- **Type-Safe**: Full TypeScript coverage with runtime validation
+
+Common extensions:
+- Add file upload capabilities
+- Integrate with external APIs
+- Add real-time features with Socket.io
+- Implement email functionality
+- Add testing frameworks
+- Deploy with Docker

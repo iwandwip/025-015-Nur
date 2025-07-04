@@ -1,6 +1,5 @@
 // Types exports
 export * from './types/auth'
-export * from './types/iot'
 export * from './types/api'
 
 // Utils exports

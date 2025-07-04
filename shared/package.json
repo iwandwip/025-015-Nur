@@ -1,7 +1,7 @@
 {
   "name": "shared",
   "version": "1.0.0",
-  "description": "Shared types and utilities for Nur IoT System",
+  "description": "Shared types and utilities for full-stack applications",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -9,7 +9,7 @@
     "dev": "tsc --watch",
     "clean": "rm -rf dist"
   },
-  "keywords": ["iot", "types", "utils"],
+  "keywords": ["typescript", "types", "utils", "fullstack"],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.11.0",

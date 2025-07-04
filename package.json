@@ -1,7 +1,7 @@
 {
-  "name": "nur-iot-system",
+  "name": "fullstack-monorepo-starter",
   "version": "1.0.0",
-  "description": "",
+  "description": "Full-stack monorepo starter with React, Node.js, TypeScript, and Prisma",
   "main": "index.js",
   "scripts": {
     "dev": "pnpm --parallel run dev",

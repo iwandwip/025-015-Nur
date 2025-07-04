@@ -6,17 +6,49 @@ export const validateEmail = (email: string): boolean => {
   return emailRegex.test(email)
 }
 
-export const validateMacAddress = (mac: string): boolean => {
-  const macRegex = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/
-  return macRegex.test(mac)
+export const validatePassword = (password: string): boolean => {
+  return password.length >= 6
 }
 
-export const validateTemperature = (temp: number): boolean => {
-  return temp >= -50 && temp <= 100
+export const validateUrl = (url: string): boolean => {
+  try {
+    new URL(url)
+    return true
+  } catch {
+    return false
+  }
 }
 
-export const validateHumidity = (humidity: number): boolean => {
-  return humidity >= 0 && humidity <= 100
+export const validatePhone = (phone: string): boolean => {
+  const phoneRegex = /^\+?[\d\s\-\(\)]{10,}$/
+  return phoneRegex.test(phone)
+}
+
+export const validateSlug = (slug: string): boolean => {
+  const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
+  return slugRegex.test(slug)
+}
+
+// String utilities
+export const sanitizeString = (str: string): string => {
+  return str.trim().replace(/\s+/g, ' ')
+}
+
+export const slugify = (text: string): string => {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+// Number utilities
+export const isValidRange = (value: number, min: number, max: number): boolean => {
+  return value >= min && value <= max
+}
+
+export const clamp = (value: number, min: number, max: number): number => {
+  return Math.min(Math.max(value, min), max)
 }
 
 // Zod validation helpers
@@ -34,5 +66,17 @@ export const createValidationMiddleware = <T>(schema: z.ZodSchema<T>) => {
       }
       return { success: false, error: 'Validation failed' }
     }
+  }
+}
+
+// Safe parse helper
+export const safeValidate = <T>(schema: z.ZodSchema<T>, data: unknown) => {
+  const result = schema.safeParse(data)
+  if (result.success) {
+    return { data: result.data, error: null }
+  }
+  return { 
+    data: null, 
+    error: result.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')
   }
 }

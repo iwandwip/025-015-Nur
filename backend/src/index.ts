@@ -27,7 +27,7 @@ app.get('/health', (req, res) => {
 
 // API routes placeholder
 app.get('/api', (req, res) => {
-  res.json({ message: 'Nur IoT Backend API' })
+  res.json({ message: 'Full-Stack Backend API' })
 })
 
 // Start server
