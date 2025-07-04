@@ -1,0 +1,81 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+.pnpm-debug.log
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.test
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+dev.db
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory
+coverage/
+*.lcov
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Firmware build files
+*.hex
+*.bin
+*.elf
+*.map
+
+# PlatformIO
+.pio/
+.vscode/
+lib/readme.txt
+
+# Arduino IDE
+*.ino.hex
+*.ino.bin
+
+# Google Service Account (already committed)
+# Leave nur-461521-ab335d1f8cc0.json as is
+
+# Shared folder builds
+shared/dist/
+shared/build/
