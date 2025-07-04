@@ -2,3 +2,4 @@ packages:
   - "frontend"
   - "backend"
   - "shared"
+  # firmware/ is not a Node.js package, so excluded from workspace

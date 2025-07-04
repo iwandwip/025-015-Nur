@@ -6,7 +6,11 @@
   "scripts": {
     "dev": "pnpm --parallel run dev",
     "dev:fe": "pnpm --filter frontend dev",
-    "dev:be": "pnpm --filter backend dev"
+    "dev:be": "pnpm --filter backend dev",
+    "build": "pnpm --filter shared build && pnpm --filter backend build && pnpm --filter frontend build",
+    "build:shared": "pnpm --filter shared build",
+    "clean": "pnpm --recursive run clean",
+    "setup": "pnpm install && pnpm build:shared && pnpm --filter backend setup"
   },
   "keywords": [],
   "author": "",
