@@ -8,6 +8,14 @@ interface TemperatureChartProps {
   setpoint?: number
 }
 
+interface TooltipProps {
+  active?: boolean
+  payload?: Array<{
+    payload: SensorData & { time: string; formattedTime: string }
+    value: number
+  }>
+}
+
 export function TemperatureChart({ data, setpoint = 25 }: TemperatureChartProps) {
   const chartData = data.map(item => ({
     ...item,
@@ -15,7 +23,7 @@ export function TemperatureChart({ data, setpoint = 25 }: TemperatureChartProps)
     formattedTime: format(parseISO(item.timestamp), 'MMM dd, HH:mm')
   }))
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload }: TooltipProps) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload
       return (

@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Download, FileText, FileSpreadsheet, FileJson, Image, Loader2 } from 'lucide-react'
+import { Download, FileText, FileSpreadsheet, FileJson, Loader2 } from 'lucide-react'
 import { DataExporter } from '@/lib/exportUtils'
 import type { SensorData } from '@/types/sensor'
 import { toast } from 'sonner'

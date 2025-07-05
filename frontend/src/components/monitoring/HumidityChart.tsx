@@ -1,10 +1,18 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts'
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts'
 import { format, parseISO } from 'date-fns'
 import type { SensorData } from '@/types/sensor'
 
 interface HumidityChartProps {
   data: SensorData[]
+}
+
+interface TooltipProps {
+  active?: boolean
+  payload?: Array<{
+    payload: SensorData & { time: string; formattedTime: string }
+    value: number
+  }>
 }
 
 export function HumidityChart({ data }: HumidityChartProps) {
@@ -14,7 +22,7 @@ export function HumidityChart({ data }: HumidityChartProps) {
     formattedTime: format(parseISO(item.timestamp), 'MMM dd, HH:mm')
   }))
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload }: TooltipProps) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload
       return (
