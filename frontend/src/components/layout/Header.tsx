@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { ModeToggle } from '@/components/mode-toggle'
 import { Bell, RefreshCw, Wifi } from 'lucide-react'
 import { format } from 'date-fns'
 
@@ -12,7 +13,7 @@ export function Header({ title, onRefresh }: HeaderProps) {
   const currentTime = format(new Date(), 'PPp')
 
   return (
-    <header className="flex h-16 items-center justify-between border-b bg-white dark:bg-gray-950 px-6">
+    <header className="flex h-16 items-center justify-between border-b bg-background px-6">
       <div>
         <h1 className="text-2xl font-bold">{title}</h1>
         <p className="text-sm text-muted-foreground">{currentTime}</p>
@@ -34,6 +35,8 @@ export function Header({ title, onRefresh }: HeaderProps) {
         <Button variant="outline" size="sm">
           <Bell className="h-4 w-4" />
         </Button>
+        
+        <ModeToggle />
       </div>
     </header>
   )

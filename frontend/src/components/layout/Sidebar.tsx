@@ -23,7 +23,7 @@ export function Sidebar() {
   const location = useLocation()
 
   return (
-    <div className="flex h-screen w-64 flex-col bg-gray-50 dark:bg-gray-900 sticky top-0">
+    <div className="flex h-screen w-64 flex-col bg-muted/30 sticky top-0">
       <div className="flex h-16 items-center gap-2 px-6 border-b">
         <Thermometer className="h-8 w-8 text-blue-600" />
         <div>
@@ -67,7 +67,7 @@ export function Sidebar() {
       <Separator />
       
       <div className="p-4">
-        <div className="rounded-lg bg-blue-50 dark:bg-blue-950 p-3 text-center">
+        <div className="rounded-lg bg-blue-50 dark:bg-blue-950/50 p-3 text-center border">
           <Settings className="h-6 w-6 mx-auto mb-2 text-blue-600" />
           <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
             System Status
