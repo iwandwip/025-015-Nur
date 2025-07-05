@@ -15,17 +15,25 @@
     "db:seed": "prisma db seed",
     "setup": "pnpm db:generate && pnpm db:push"
   },
-  "keywords": ["api", "backend", "express", "typescript", "prisma"],
+  "keywords": [
+    "api",
+    "backend",
+    "express",
+    "typescript",
+    "prisma"
+  ],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.11.0",
   "dependencies": {
     "@prisma/client": "^6.11.1",
+    "@types/node-cron": "^3.0.11",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^17.0.1",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
+    "node-cron": "^4.2.0",
     "prisma": "^6.11.1",
     "socket.io": "^4.8.1",
     "sqlite3": "^5.1.7",
