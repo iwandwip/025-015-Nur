@@ -18,25 +18,94 @@ model User {
   role      Role     @default(USER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  posts     Post[]
 
   @@map("users")
 }
 
-model Post {
-  id        String   @id @default(cuid())
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  userId    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+model Device {
+  id          String        @id @default(cuid())
+  name        String
+  type        DeviceType
+  location    String?
+  macAddress  String?       @unique
+  isOnline    Boolean       @default(false)
+  lastSeen    DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  sensorData  SensorData[]
+  acSettings  ACSettings[]
 
-  @@map("posts")
+  @@map("devices")
+}
+
+model SensorData {
+  id          String   @id @default(cuid())
+  deviceId    String
+  temperature Float
+  humidity    Float
+  timestamp   DateTime @default(now())
+  device      Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@map("sensor_data")
+}
+
+model ACSettings {
+  id                String    @id @default(cuid())
+  deviceId          String
+  isOn              Boolean   @default(false)
+  targetTemperature Float     @default(24.0)
+  currentMode       ACMode    @default(AUTO)
+  fanSpeed          FanSpeed  @default(AUTO)
+  isAutoMode        Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  device            Device    @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@map("ac_settings")
+}
+
+model SystemSettings {
+  id                    String   @id @default(cuid())
+  key                   String   @unique
+  value                 String
+  description           String?
+  updatedAt             DateTime @updatedAt
+
+  @@map("system_settings")
+}
+
+model DataLog {
+  id        String   @id @default(cuid())
+  action    String
+  details   String?
+  timestamp DateTime @default(now())
+  userId    String?
+
+  @@map("data_logs")
 }
 
 enum Role {
   ADMIN
   USER
+}
+
+enum DeviceType {
+  AC_CONTROLLER
+  SENSOR
+  THERMOSTAT
+}
+
+enum ACMode {
+  AUTO
+  COOL
+  FAN
+  DRY
+  HEAT
+}
+
+enum FanSpeed {
+  AUTO
+  LOW
+  MEDIUM
+  HIGH
 }
