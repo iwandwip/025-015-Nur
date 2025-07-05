@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "Backend API server for full-stack applications",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon src/index.ts",
@@ -15,7 +15,7 @@
     "db:seed": "prisma db seed",
     "setup": "pnpm db:generate && pnpm db:push"
   },
-  "keywords": [],
+  "keywords": ["api", "backend", "express", "typescript", "prisma"],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.11.0",
@@ -27,7 +27,6 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "prisma": "^6.11.1",
-    "serialport": "^13.0.0",
     "socket.io": "^4.8.1",
     "sqlite3": "^5.1.7",
     "ws": "^8.18.3",
