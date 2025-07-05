@@ -1,8 +1,10 @@
+import { useState, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { format, parseISO } from 'date-fns'
-import { Download, RefreshCw } from 'lucide-react'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { format, parseISO, isAfter, isBefore, subHours, subDays, startOfDay, endOfDay } from 'date-fns'
+import { Download, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { SensorData } from '@/types/sensor'
 
@@ -17,14 +19,53 @@ const statusColors = {
   critical: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
 }
 
+type TimeFilter = 'all' | '1h' | '6h' | '24h' | '7d'
+type SortOrder = 'newest' | 'oldest'
+
 export function DataTable({ data, onRefresh }: DataTableProps) {
-  const recentData = data.slice(-10).reverse() // Show last 10 entries, newest first
+  const [timeFilter, setTimeFilter] = useState<TimeFilter>('24h')
+  const [sortOrder, setSortOrder] = useState<SortOrder>('newest')
+  const [displayLimit, setDisplayLimit] = useState<number>(10)
+
+  const filteredAndSortedData = useMemo(() => {
+    const now = new Date()
+    let filtered = data
+
+    // Apply time filter
+    switch (timeFilter) {
+      case '1h':
+        filtered = data.filter(item => isAfter(parseISO(item.timestamp), subHours(now, 1)))
+        break
+      case '6h':
+        filtered = data.filter(item => isAfter(parseISO(item.timestamp), subHours(now, 6)))
+        break
+      case '24h':
+        filtered = data.filter(item => isAfter(parseISO(item.timestamp), subDays(now, 1)))
+        break
+      case '7d':
+        filtered = data.filter(item => isAfter(parseISO(item.timestamp), subDays(now, 7)))
+        break
+      case 'all':
+      default:
+        filtered = data
+        break
+    }
+
+    // Apply sorting
+    const sorted = [...filtered].sort((a, b) => {
+      const timeA = parseISO(a.timestamp).getTime()
+      const timeB = parseISO(b.timestamp).getTime()
+      return sortOrder === 'newest' ? timeB - timeA : timeA - timeB
+    })
+
+    return sorted.slice(0, displayLimit)
+  }, [data, timeFilter, sortOrder, displayLimit])
 
   const handleExport = () => {
     const csv = [
       ['No', 'Timestamp', 'Temperature (°C)', 'Humidity (%)', 'Status'],
-      ...recentData.map((item, index) => [
-        recentData.length - index,
+      ...filteredAndSortedData.map((item, index) => [
+        index + 1,
         format(parseISO(item.timestamp), 'yyyy-MM-dd HH:mm:ss'),
         item.temperature,
         item.humidity,
@@ -36,26 +77,83 @@ export function DataTable({ data, onRefresh }: DataTableProps) {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `sensor-data-${format(new Date(), 'yyyy-MM-dd')}.csv`
+    a.download = `sensor-data-${timeFilter}-${format(new Date(), 'yyyy-MM-dd')}.csv`
     a.click()
     URL.revokeObjectURL(url)
   }
 
+  const toggleSort = () => {
+    setSortOrder(prev => prev === 'newest' ? 'oldest' : 'newest')
+  }
+
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Recent Sensor Data</CardTitle>
-        <div className="flex items-center gap-2">
-          {onRefresh && (
-            <Button variant="outline" size="sm" onClick={onRefresh}>
-              <RefreshCw className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Refresh</span>
+      <CardHeader>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <CardTitle>Sensor Data</CardTitle>
+          <div className="flex items-center gap-2">
+            {onRefresh && (
+              <Button variant="outline" size="sm" onClick={onRefresh}>
+                <RefreshCw className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Refresh</span>
+              </Button>
+            )}
+            <Button variant="outline" size="sm" onClick={handleExport}>
+              <Download className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Export</span>
             </Button>
-          )}
-          <Button variant="outline" size="sm" onClick={handleExport}>
-            <Download className="h-4 w-4 mr-2" />
-            <span className="hidden sm:inline">Export</span>
-          </Button>
+          </div>
+        </div>
+        
+        {/* Filters */}
+        <div className="flex flex-col sm:flex-row gap-4 pt-4">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium">Time:</span>
+            <Select value={timeFilter} onValueChange={(value: TimeFilter) => setTimeFilter(value)}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1h">Last 1 Hour</SelectItem>
+                <SelectItem value="6h">Last 6 Hours</SelectItem>
+                <SelectItem value="24h">Last 24 Hours</SelectItem>
+                <SelectItem value="7d">Last 7 Days</SelectItem>
+                <SelectItem value="all">All Time</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium">Sort:</span>
+            <Button variant="outline" size="sm" onClick={toggleSort} className="gap-2">
+              {sortOrder === 'newest' ? (
+                <ArrowDown className="h-4 w-4" />
+              ) : (
+                <ArrowUp className="h-4 w-4" />
+              )}
+              <span className="hidden sm:inline">
+                {sortOrder === 'newest' ? 'Newest First' : 'Oldest First'}
+              </span>
+              <span className="sm:hidden">
+                {sortOrder === 'newest' ? 'New' : 'Old'}
+              </span>
+            </Button>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium">Show:</span>
+            <Select value={displayLimit.toString()} onValueChange={(value: string) => setDisplayLimit(Number(value))}>
+              <SelectTrigger className="w-[80px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="25">25</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+                <SelectItem value="100">100</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -72,10 +170,10 @@ export function DataTable({ data, onRefresh }: DataTableProps) {
                 </tr>
               </thead>
               <tbody>
-                {recentData.map((item, index) => (
+                {filteredAndSortedData.map((item, index) => (
                   <tr key={`${item.timestamp}-${index}`} className="border-b last:border-b-0 hover:bg-muted/30">
                     <td className="p-3 text-sm font-medium">
-                      {recentData.length - index}
+                      {index + 1}
                     </td>
                     <td className="p-3 text-sm">
                       <div className="space-y-1">
@@ -127,15 +225,21 @@ export function DataTable({ data, onRefresh }: DataTableProps) {
             </table>
           </div>
           
-          {recentData.length === 0 && (
+          {filteredAndSortedData.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
-              <p>No data available</p>
+              <p>No data available for the selected time range</p>
             </div>
           )}
         </div>
         
-        <div className="mt-4 text-sm text-muted-foreground text-center">
-          Showing {recentData.length} most recent entries
+        <div className="mt-4 flex justify-between items-center text-sm text-muted-foreground">
+          <span>
+            Showing {filteredAndSortedData.length} of {data.length} entries
+            {timeFilter !== 'all' && ` (${timeFilter} filter)`}
+          </span>
+          <span>
+            Sorted by {sortOrder === 'newest' ? 'newest' : 'oldest'} first
+          </span>
         </div>
       </CardContent>
     </Card>
