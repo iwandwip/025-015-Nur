@@ -12,6 +12,12 @@ const navigation = [
     description: 'Sensor Dashboard'
   },
   {
+    name: 'Control',
+    href: '/control',
+    icon: Settings,
+    description: 'AC Management'
+  },
+  {
     name: 'Profile',
     href: '/profile',
     icon: User,
