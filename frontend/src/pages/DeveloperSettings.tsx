@@ -7,19 +7,15 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
 import { useSettings } from '@/hooks/useSettings'
 import { 
   Settings, 
   Thermometer, 
   Droplets, 
-  RefreshCw, 
   Download, 
   Upload, 
   RotateCcw,
   AlertTriangle,
-  Code,
   Palette,
   Wifi
 } from 'lucide-react'
@@ -34,7 +30,7 @@ export function DeveloperSettings() {
     try {
       resetSettings()
       toast.success('Settings reset to defaults')
-    } catch (error) {
+    } catch {
       toast.error('Failed to reset settings')
     } finally {
       setIsResetting(false)
@@ -45,7 +41,7 @@ export function DeveloperSettings() {
     try {
       exportSettings()
       toast.success('Settings exported successfully')
-    } catch (error) {
+    } catch {
       toast.error('Failed to export settings')
     }
   }
