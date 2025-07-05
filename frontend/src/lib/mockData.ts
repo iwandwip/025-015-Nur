@@ -1,4 +1,6 @@
 import { format, subHours } from 'date-fns'
+import { getSensorStatus } from '@/lib/thresholdUtils'
+import { defaultSettings } from '@/types/settings'
 import type { SensorData, CurrentSensorData } from '@/types/sensor'
 
 // Generate mock historical data for the last 24 hours
@@ -17,10 +19,8 @@ export const generateMockHistoryData = (hours: number = 24): SensorData[] => {
     const baseHumidity = 70 - (temperature - 25) * 2
     const humidity = Number((baseHumidity + (Math.random() - 0.5) * 10).toFixed(1))
     
-    // Determine status based on temperature
-    let status: 'normal' | 'warning' | 'critical' = 'normal'
-    if (temperature > 30 || temperature < 18) status = 'warning'
-    if (temperature > 35 || temperature < 15) status = 'critical'
+    // Determine status based on dynamic thresholds
+    const status = getSensorStatus(temperature, humidity, defaultSettings.thresholds)
     
     data.push({
       timestamp: format(timestamp, 'yyyy-MM-dd HH:mm:ss'),
@@ -53,9 +53,7 @@ export const updateMockCurrentData = (): CurrentSensorData => {
   const newTemp = Number((mockCurrentData.temperature + variation).toFixed(1))
   const newHumidity = Number((mockCurrentData.humidity + (Math.random() - 0.5) * 2).toFixed(1))
   
-  let status: 'normal' | 'warning' | 'critical' = 'normal'
-  if (newTemp > 30 || newTemp < 18) status = 'warning'
-  if (newTemp > 35 || newTemp < 15) status = 'critical'
+  const status = getSensorStatus(newTemp, newHumidity, defaultSettings.thresholds)
   
   return {
     ...mockCurrentData,

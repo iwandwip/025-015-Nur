@@ -7,6 +7,8 @@ import { ExportDropdown } from '@/components/ui/export-dropdown'
 import { format, parseISO, isAfter, subHours, subDays } from 'date-fns'
 import { RefreshCw, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useSettings } from '@/hooks/useSettings'
+import { getTemperatureIcon, getTemperatureColor, getHumidityIcon, getHumidityColor } from '@/lib/thresholdUtils'
 import type { SensorData } from '@/types/sensor'
 
 interface DataTableProps {
@@ -24,6 +26,7 @@ type TimeFilter = 'all' | '1h' | '6h' | '24h' | '7d'
 type SortOrder = 'newest' | 'oldest'
 
 export function DataTable({ data, onRefresh }: DataTableProps) {
+  const { settings } = useSettings()
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('24h')
   const [sortOrder, setSortOrder] = useState<SortOrder>('newest')
   const [itemsPerPage, setItemsPerPage] = useState<number>(10)
@@ -213,11 +216,9 @@ export function DataTable({ data, onRefresh }: DataTableProps) {
                         <span className="font-medium">{item.temperature}°C</span>
                         <span className={cn(
                           "text-xs",
-                          item.temperature > 25 ? "text-red-600" : 
-                          item.temperature < 20 ? "text-blue-600" : "text-green-600"
+                          getTemperatureColor(item.temperature, settings.thresholds)
                         )}>
-                          {item.temperature > 25 ? '🔥' : 
-                           item.temperature < 20 ? '❄️' : '✅'}
+                          {getTemperatureIcon(item.temperature, settings.thresholds)}
                         </span>
                       </div>
                     </td>
@@ -226,11 +227,9 @@ export function DataTable({ data, onRefresh }: DataTableProps) {
                         <span className="font-medium">{item.humidity}%</span>
                         <span className={cn(
                           "text-xs",
-                          item.humidity > 70 ? "text-blue-600" : 
-                          item.humidity < 40 ? "text-yellow-600" : "text-green-600"
+                          getHumidityColor(item.humidity, settings.thresholds)
                         )}>
-                          {item.humidity > 70 ? '💧' : 
-                           item.humidity < 40 ? '🏜️' : '✅'}
+                          {getHumidityIcon(item.humidity, settings.thresholds)}
                         </span>
                       </div>
                     </td>

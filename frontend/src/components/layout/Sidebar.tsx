@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { BarChart3, User, Settings, Thermometer } from 'lucide-react'
+import { BarChart3, User, Settings, Thermometer, Code } from 'lucide-react'
 
 const navigation = [
   {
@@ -22,6 +22,12 @@ const navigation = [
     href: '/profile',
     icon: User,
     description: 'Settings & Account'
+  },
+  {
+    name: 'Developer',
+    href: '/developer',
+    icon: Code,
+    description: 'System Configuration'
   }
 ]
 

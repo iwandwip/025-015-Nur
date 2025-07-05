@@ -3,6 +3,7 @@ import { Sidebar } from '@/components/layout/Sidebar'
 import { Monitoring } from '@/pages/Monitoring'
 import { Control } from '@/pages/Control'
 import { Profile } from '@/pages/Profile'
+import { DeveloperSettings } from '@/pages/DeveloperSettings'
 import { ThemeProvider } from '@/components/theme-provider'
 import { ErrorBoundary } from '@/components/error-boundary'
 import { Toaster } from 'sonner'
@@ -27,6 +28,7 @@ function App() {
                   <Route path="/" element={<Monitoring />} />
                   <Route path="/control" element={<Control />} />
                   <Route path="/profile" element={<Profile />} />
+                  <Route path="/developer" element={<DeveloperSettings />} />
                 </Routes>
               </ErrorBoundary>
             </div>
