@@ -24,13 +24,23 @@ export function Control() {
   }
 
   const handlePowerToggle = () => {
+    if (autoMode) {
+      toast.error('Cannot manually control AC power while in Auto mode')
+      return
+    }
     setAcPower(!acPower)
     toast.success(`AC ${!acPower ? 'turned on' : 'turned off'}`)
   }
 
   const handleModeToggle = () => {
-    setAutoMode(!autoMode)
-    toast.success(`Mode changed to ${!autoMode ? 'Auto' : 'Manual'}`)
+    const newMode = !autoMode
+    setAutoMode(newMode)
+    
+    if (newMode) {
+      toast.success('Auto mode enabled - AC will be controlled automatically')
+    } else {
+      toast.success('Manual mode enabled - You can now control AC manually')
+    }
   }
 
   return (
@@ -142,24 +152,32 @@ export function Control() {
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="ac-power">AC Power</Label>
+                  <Label htmlFor="ac-power" className={autoMode ? 'text-muted-foreground' : ''}>
+                    AC Power {autoMode && '(Auto Mode)'}
+                  </Label>
                   <p className="text-sm text-muted-foreground">
-                    Turn AC on or off
+                    {autoMode ? 'Controlled automatically' : 'Turn AC on or off'}
                   </p>
                 </div>
                 <Switch
                   id="ac-power"
                   checked={acPower}
                   onCheckedChange={handlePowerToggle}
+                  disabled={autoMode}
                 />
               </div>
               
-              <div className="text-center p-4 rounded-lg border">
+              <div className={`text-center p-4 rounded-lg border ${autoMode ? 'bg-blue-50 dark:bg-blue-950/20' : ''}`}>
                 <Power className={`h-8 w-8 mx-auto mb-2 ${acPower ? 'text-green-600' : 'text-gray-400'}`} />
                 <p className="font-medium">
                   Status: <Badge variant={acPower ? 'default' : 'secondary'}>
                     {acPower ? 'ON' : 'OFF'}
                   </Badge>
+                  {autoMode && (
+                    <Badge variant="outline" className="ml-2 text-blue-600">
+                      AUTO
+                    </Badge>
+                  )}
                 </p>
               </div>
             </CardContent>
@@ -178,7 +196,7 @@ export function Control() {
                 <div>
                   <Label htmlFor="auto-mode">Auto Mode</Label>
                   <p className="text-sm text-muted-foreground">
-                    Automatic temperature control
+                    {autoMode ? 'System controls AC automatically' : 'Manual control enabled'}
                   </p>
                 </div>
                 <Switch
@@ -188,12 +206,15 @@ export function Control() {
                 />
               </div>
               
-              <div className="text-center p-4 rounded-lg border">
+              <div className={`text-center p-4 rounded-lg border ${autoMode ? 'bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800' : 'bg-orange-50 dark:bg-orange-950/20 border-orange-200 dark:border-orange-800'}`}>
                 <Fan className={`h-8 w-8 mx-auto mb-2 ${autoMode ? 'text-blue-600' : 'text-orange-600'}`} />
                 <p className="font-medium">
-                  Mode: <Badge variant="outline">
+                  Mode: <Badge variant="outline" className={autoMode ? 'text-blue-600 border-blue-600' : 'text-orange-600 border-orange-600'}>
                     {autoMode ? 'AUTO' : 'MANUAL'}
                   </Badge>
+                </p>
+                <p className="text-xs text-muted-foreground mt-2">
+                  {autoMode ? 'AC power controlled by system' : 'Full manual control available'}
                 </p>
               </div>
             </CardContent>
@@ -246,7 +267,14 @@ export function Control() {
         {/* Quick Actions */}
         <Card>
           <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
+            <CardTitle className="flex items-center justify-between">
+              Quick Actions
+              {autoMode && (
+                <Badge variant="outline" className="text-blue-600">
+                  Limited in Auto Mode
+                </Badge>
+              )}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -279,14 +307,24 @@ export function Control() {
               </Button>
               <Button 
                 variant="outline"
+                disabled={autoMode}
                 onClick={() => {
+                  if (autoMode) {
+                    toast.error('Cannot turn off AC manually while in Auto mode')
+                    return
+                  }
                   setAcPower(false)
                   toast.success('AC turned off')
                 }}
               >
-                Turn Off
+                {autoMode ? 'Turn Off (Disabled)' : 'Turn Off'}
               </Button>
             </div>
+            {autoMode && (
+              <p className="text-sm text-muted-foreground mt-4 text-center">
+                Temperature setpoints can still be adjusted in Auto mode, but AC power is controlled automatically
+              </p>
+            )}
           </CardContent>
         </Card>
       </div>
