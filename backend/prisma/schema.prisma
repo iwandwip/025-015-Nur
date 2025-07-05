@@ -22,44 +22,21 @@ model User {
   @@map("users")
 }
 
-model Device {
-  id          String        @id @default(cuid())
-  name        String
-  type        DeviceType
-  location    String?
-  macAddress  String?       @unique
-  isOnline    Boolean       @default(false)
-  lastSeen    DateTime?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  sensorData  SensorData[]
-  acSettings  ACSettings[]
-
-  @@map("devices")
-}
-
 model SensorData {
   id          String   @id @default(cuid())
-  deviceId    String
   temperature Float
   humidity    Float
   timestamp   DateTime @default(now())
-  device      Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
 
   @@map("sensor_data")
 }
 
 model ACSettings {
   id                String    @id @default(cuid())
-  deviceId          String
   isOn              Boolean   @default(false)
   targetTemperature Float     @default(24.0)
-  currentMode       ACMode    @default(AUTO)
-  fanSpeed          FanSpeed  @default(AUTO)
-  isAutoMode        Boolean   @default(true)
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
-  device            Device    @relation(fields: [deviceId], references: [id], onDelete: Cascade)
 
   @@map("ac_settings")
 }
@@ -89,23 +66,4 @@ enum Role {
   USER
 }
 
-enum DeviceType {
-  AC_CONTROLLER
-  SENSOR
-  THERMOSTAT
-}
 
-enum ACMode {
-  AUTO
-  COOL
-  FAN
-  DRY
-  HEAT
-}
-
-enum FanSpeed {
-  AUTO
-  LOW
-  MEDIUM
-  HIGH
-}
