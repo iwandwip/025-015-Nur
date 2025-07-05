@@ -40,20 +40,20 @@ export function SensorCard({
   const formattedValue = numeral(value).format('0.0')
 
   return (
-    <Card className="relative overflow-hidden">
+    <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02] group">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-xs md:text-sm font-medium">{title}</CardTitle>
         <Icon className={cn(
-          "h-4 w-4 flex-shrink-0",
-          status === 'normal' && "text-blue-600",
-          status === 'warning' && "text-yellow-600",
-          status === 'critical' && "text-red-600"
+          "h-4 w-4 flex-shrink-0 transition-all duration-300 group-hover:scale-110",
+          status === 'normal' && "text-blue-600 group-hover:text-blue-700",
+          status === 'warning' && "text-yellow-600 group-hover:text-yellow-700",
+          status === 'critical' && "text-red-600 group-hover:text-red-700"
         )} />
       </CardHeader>
       <CardContent className="space-y-2">
         <div className="flex items-baseline justify-between">
           <div className="min-w-0 flex-1">
-            <div className="text-lg md:text-2xl font-bold truncate">
+            <div className="text-lg md:text-2xl font-bold truncate transition-all duration-300 group-hover:text-primary">
               {formattedValue}
               <span className="text-xs md:text-sm font-normal text-muted-foreground ml-1">
                 {unit}

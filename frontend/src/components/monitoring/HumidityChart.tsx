@@ -49,25 +49,42 @@ export function HumidityChart({ data }: HumidityChartProps) {
       <CardContent>
         <div className="h-64 md:h-80">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+            <AreaChart 
+              data={chartData} 
+              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            >
               <defs>
                 <linearGradient id="colorHumidity" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#06B6D4" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#06B6D4" stopOpacity={0.1}/>
+                  <stop offset="95%" stopColor="#06B6D4" stopOpacity={0.05}/>
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+              <CartesianGrid 
+                strokeDasharray="3 3" 
+                className="opacity-30" 
+                animationDuration={800}
+              />
               <XAxis 
                 dataKey="time" 
                 tick={{ fontSize: 12 }}
                 interval="preserveStartEnd"
+                animationDuration={800}
               />
               <YAxis 
                 domain={[0, 100]}
                 tick={{ fontSize: 12 }}
                 label={{ value: '%', angle: -90, position: 'insideLeft' }}
+                animationDuration={800}
               />
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip 
+                content={<CustomTooltip />}
+                animationDuration={200}
+                wrapperStyle={{
+                  outline: 'none',
+                  borderRadius: '8px',
+                  boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)'
+                }}
+              />
               
               <Area
                 type="monotone"
@@ -75,8 +92,27 @@ export function HumidityChart({ data }: HumidityChartProps) {
                 stroke="#06B6D4"
                 strokeWidth={2}
                 fill="url(#colorHumidity)"
-                dot={{ fill: '#06B6D4', strokeWidth: 2, r: 3 }}
-                activeDot={{ r: 5, stroke: '#06B6D4', strokeWidth: 2 }}
+                dot={{ 
+                  fill: '#06B6D4', 
+                  strokeWidth: 2, 
+                  r: 3,
+                  style: { 
+                    transition: 'all 0.3s ease',
+                    filter: 'drop-shadow(0 2px 4px rgba(6, 182, 212, 0.3))'
+                  }
+                }}
+                activeDot={{ 
+                  r: 6, 
+                  stroke: '#06B6D4', 
+                  strokeWidth: 2,
+                  fill: '#ffffff',
+                  style: {
+                    filter: 'drop-shadow(0 4px 8px rgba(6, 182, 212, 0.4))',
+                    transition: 'all 0.2s ease'
+                  }
+                }}
+                animationDuration={1400}
+                animationEasing="ease-in-out"
               />
             </AreaChart>
           </ResponsiveContainer>

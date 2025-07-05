@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { ExportDropdown } from '@/components/ui/export-dropdown'
 import { format, parseISO, isAfter, isBefore, subHours, subDays, startOfDay, endOfDay } from 'date-fns'
 import { Download, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -61,25 +62,15 @@ export function DataTable({ data, onRefresh }: DataTableProps) {
     return sorted.slice(0, displayLimit)
   }, [data, timeFilter, sortOrder, displayLimit])
 
-  const handleExport = () => {
-    const csv = [
-      ['No', 'Timestamp', 'Temperature (°C)', 'Humidity (%)', 'Status'],
-      ...filteredAndSortedData.map((item, index) => [
-        index + 1,
-        format(parseISO(item.timestamp), 'yyyy-MM-dd HH:mm:ss'),
-        item.temperature,
-        item.humidity,
-        item.status
-      ])
-    ].map(row => row.join(',')).join('\n')
-
-    const blob = new Blob([csv], { type: 'text/csv' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `sensor-data-${timeFilter}-${format(new Date(), 'yyyy-MM-dd')}.csv`
-    a.click()
-    URL.revokeObjectURL(url)
+  const getTimeFilterLabel = (filter: TimeFilter): string => {
+    switch (filter) {
+      case '1h': return 'Last 1 Hour'
+      case '6h': return 'Last 6 Hours'
+      case '24h': return 'Last 24 Hours'
+      case '7d': return 'Last 7 Days'
+      case 'all': return 'All Data'
+      default: return 'All Data'
+    }
   }
 
   const toggleSort = () => {
@@ -98,10 +89,11 @@ export function DataTable({ data, onRefresh }: DataTableProps) {
                 <span className="hidden sm:inline">Refresh</span>
               </Button>
             )}
-            <Button variant="outline" size="sm" onClick={handleExport}>
-              <Download className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Export</span>
-            </Button>
+            <ExportDropdown 
+              data={filteredAndSortedData}
+              filename={`sensor-data-${timeFilter}`}
+              timeFilter={getTimeFilterLabel(timeFilter)}
+            />
           </div>
         </div>
         

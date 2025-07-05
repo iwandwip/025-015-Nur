@@ -58,25 +58,43 @@ export function TemperatureChart({ data, setpoint = 25 }: TemperatureChartProps)
       <CardContent>
         <div className="h-64 md:h-80">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+            <LineChart 
+              data={chartData} 
+              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            >
+              <CartesianGrid 
+                strokeDasharray="3 3" 
+                className="opacity-30" 
+                animationDuration={800}
+              />
               <XAxis 
                 dataKey="time" 
                 tick={{ fontSize: 12 }}
                 interval="preserveStartEnd"
+                animationDuration={800}
               />
               <YAxis 
                 domain={['dataMin - 2', 'dataMax + 2']}
                 tick={{ fontSize: 12 }}
                 label={{ value: '°C', angle: -90, position: 'insideLeft' }}
+                animationDuration={800}
               />
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip 
+                content={<CustomTooltip />}
+                animationDuration={200}
+                wrapperStyle={{
+                  outline: 'none',
+                  borderRadius: '8px',
+                  boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)'
+                }}
+              />
               
               <ReferenceLine 
                 y={setpoint} 
                 stroke="#9CA3AF" 
                 strokeDasharray="5 5"
                 label={{ value: `Setpoint (${setpoint}°C)`, position: "topRight" }}
+                animationDuration={800}
               />
               
               <Line 
@@ -84,8 +102,27 @@ export function TemperatureChart({ data, setpoint = 25 }: TemperatureChartProps)
                 dataKey="temperature" 
                 stroke="#3B82F6"
                 strokeWidth={2}
-                dot={{ fill: '#3B82F6', strokeWidth: 2, r: 3 }}
-                activeDot={{ r: 5, stroke: '#3B82F6', strokeWidth: 2 }}
+                dot={{ 
+                  fill: '#3B82F6', 
+                  strokeWidth: 2, 
+                  r: 3,
+                  style: { 
+                    transition: 'all 0.3s ease',
+                    filter: 'drop-shadow(0 2px 4px rgba(59, 130, 246, 0.3))'
+                  }
+                }}
+                activeDot={{ 
+                  r: 6, 
+                  stroke: '#3B82F6', 
+                  strokeWidth: 2,
+                  fill: '#ffffff',
+                  style: {
+                    filter: 'drop-shadow(0 4px 8px rgba(59, 130, 246, 0.4))',
+                    transition: 'all 0.2s ease'
+                  }
+                }}
+                animationDuration={1200}
+                animationEasing="ease-in-out"
               />
             </LineChart>
           </ResponsiveContainer>
