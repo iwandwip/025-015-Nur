@@ -9,13 +9,13 @@ const navigation = [
     name: 'Monitoring',
     href: '/',
     icon: BarChart3,
-    description: 'Temperature & Humidity Dashboard'
+    description: 'Sensor Dashboard'
   },
   {
     name: 'Profile',
     href: '/profile',
     icon: User,
-    description: 'User Profile & Settings'
+    description: 'Settings & Account'
   }
 ]
 
@@ -48,11 +48,11 @@ export function Sidebar() {
                   isActive && "bg-primary text-primary-foreground"
                 )}
               >
-                <Icon className="h-5 w-5 mr-3" />
-                <div className="text-left">
+                <Icon className="h-5 w-5 mr-3 flex-shrink-0" />
+                <div className="text-left min-w-0 flex-1">
                   <div className="font-medium">{item.name}</div>
                   <div className={cn(
-                    "text-xs",
+                    "text-xs truncate",
                     isActive ? "text-primary-foreground/80" : "text-muted-foreground"
                   )}>
                     {item.description}
