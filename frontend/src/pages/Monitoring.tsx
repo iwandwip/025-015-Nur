@@ -43,9 +43,9 @@ export function Monitoring() {
     <div className="flex-1 flex flex-col">
       <Header title="Monitoring Dashboard" onRefresh={refetch} />
       
-      <div className="flex-1 p-6 space-y-6 overflow-y-auto">
+      <div className="flex-1 p-4 md:p-6 space-y-4 md:space-y-6 overflow-y-auto">
         {/* Current Sensor Data Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
           <SensorCard
             title="Temperature"
             value={currentData.temperature}
@@ -92,7 +92,7 @@ export function Monitoring() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
               <div className="flex items-center gap-3">
                 <Power className="h-8 w-8 text-green-600" />
                 <div>
@@ -128,9 +128,15 @@ export function Monitoring() {
 
         {/* Charts */}
         <Tabs defaultValue="temperature" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="temperature">Temperature Trends</TabsTrigger>
-            <TabsTrigger value="humidity">Humidity Trends</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="temperature" className="text-xs md:text-sm">
+              <span className="hidden sm:inline">Temperature Trends</span>
+              <span className="sm:hidden">Temperature</span>
+            </TabsTrigger>
+            <TabsTrigger value="humidity" className="text-xs md:text-sm">
+              <span className="hidden sm:inline">Humidity Trends</span>
+              <span className="sm:hidden">Humidity</span>
+            </TabsTrigger>
           </TabsList>
           
           <TabsContent value="temperature" className="space-y-4">

@@ -47,7 +47,7 @@ export function HumidityChart({ data }: HumidityChartProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-80">
+        <div className="h-64 md:h-80">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
               <defs>

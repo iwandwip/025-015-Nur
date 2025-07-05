@@ -10,7 +10,12 @@ function App() {
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
       <Router>
         <div className="flex min-h-screen bg-background">
-          <Sidebar />
+          {/* Desktop Sidebar */}
+          <div className="hidden md:flex">
+            <Sidebar />
+          </div>
+          
+          {/* Main Content */}
           <div className="flex-1 flex flex-col">
             <Routes>
               <Route path="/" element={<Monitoring />} />

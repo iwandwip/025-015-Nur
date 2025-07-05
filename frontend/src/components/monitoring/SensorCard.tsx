@@ -42,38 +42,38 @@ export function SensorCard({
   return (
     <Card className="relative overflow-hidden">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        <CardTitle className="text-xs md:text-sm font-medium">{title}</CardTitle>
         <Icon className={cn(
-          "h-4 w-4",
+          "h-4 w-4 flex-shrink-0",
           status === 'normal' && "text-blue-600",
           status === 'warning' && "text-yellow-600",
           status === 'critical' && "text-red-600"
         )} />
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-2">
         <div className="flex items-baseline justify-between">
-          <div>
-            <div className="text-2xl font-bold">
+          <div className="min-w-0 flex-1">
+            <div className="text-lg md:text-2xl font-bold truncate">
               {formattedValue}
-              <span className="text-sm font-normal text-muted-foreground ml-1">
+              <span className="text-xs md:text-sm font-normal text-muted-foreground ml-1">
                 {unit}
               </span>
             </div>
             {subtitle && (
-              <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
+              <p className="text-xs text-muted-foreground mt-1 truncate">{subtitle}</p>
             )}
           </div>
           
           <Badge 
             variant="secondary" 
-            className={cn("capitalize", statusColors[status])}
+            className={cn("capitalize text-xs flex-shrink-0", statusColors[status])}
           >
             {status}
           </Badge>
         </div>
         
         {trend && (
-          <div className="mt-3 flex items-center text-xs">
+          <div className="flex items-center text-xs">
             <span className={cn(
               "flex items-center",
               trend === 'up' && "text-red-600",
@@ -83,7 +83,7 @@ export function SensorCard({
               {trend === 'up' && '↗'}
               {trend === 'down' && '↘'}
               {trend === 'stable' && '→'}
-              <span className="ml-1">
+              <span className="ml-1 hidden sm:inline">
                 {trend === 'up' && 'Rising'}
                 {trend === 'down' && 'Falling'}
                 {trend === 'stable' && 'Stable'}
