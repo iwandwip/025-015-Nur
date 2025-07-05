@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ExportDropdown } from '@/components/ui/export-dropdown'
 import { format, parseISO, isAfter, subHours, subDays } from 'date-fns'
-import { RefreshCw, ArrowUp, ArrowDown } from 'lucide-react'
+import { RefreshCw, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { SensorData } from '@/types/sensor'
 
@@ -26,9 +26,10 @@ type SortOrder = 'newest' | 'oldest'
 export function DataTable({ data, onRefresh }: DataTableProps) {
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('24h')
   const [sortOrder, setSortOrder] = useState<SortOrder>('newest')
-  const [displayLimit, setDisplayLimit] = useState<number>(10)
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10)
+  const [currentPage, setCurrentPage] = useState<number>(1)
 
-  const filteredAndSortedData = useMemo(() => {
+  const { filteredData, paginatedData, totalPages } = useMemo(() => {
     const now = new Date()
     let filtered = data
 
@@ -59,8 +60,35 @@ export function DataTable({ data, onRefresh }: DataTableProps) {
       return sortOrder === 'newest' ? timeB - timeA : timeA - timeB
     })
 
-    return sorted.slice(0, displayLimit)
-  }, [data, timeFilter, sortOrder, displayLimit])
+    // Calculate pagination
+    const totalPages = Math.ceil(sorted.length / itemsPerPage)
+    const startIndex = (currentPage - 1) * itemsPerPage
+    const endIndex = startIndex + itemsPerPage
+    const paginatedData = sorted.slice(startIndex, endIndex)
+
+    return {
+      filteredData: sorted,
+      paginatedData,
+      totalPages
+    }
+  }, [data, timeFilter, sortOrder, itemsPerPage, currentPage])
+
+  // Reset page when filters change
+  const resetPage = () => setCurrentPage(1)
+
+  const handleTimeFilterChange = (value: TimeFilter) => {
+    setTimeFilter(value)
+    resetPage()
+  }
+
+  const handleItemsPerPageChange = (value: string) => {
+    setItemsPerPage(Number(value))
+    resetPage()
+  }
+
+  const goToPage = (page: number) => {
+    setCurrentPage(Math.max(1, Math.min(page, totalPages)))
+  }
 
   const getTimeFilterLabel = (filter: TimeFilter): string => {
     switch (filter) {
@@ -90,7 +118,7 @@ export function DataTable({ data, onRefresh }: DataTableProps) {
               </Button>
             )}
             <ExportDropdown 
-              data={filteredAndSortedData}
+              data={filteredData}
               filename={`sensor-data-${timeFilter}`}
               timeFilter={getTimeFilterLabel(timeFilter)}
             />
@@ -101,7 +129,7 @@ export function DataTable({ data, onRefresh }: DataTableProps) {
         <div className="flex flex-col sm:flex-row gap-4 pt-4">
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium">Time:</span>
-            <Select value={timeFilter} onValueChange={(value: TimeFilter) => setTimeFilter(value)}>
+            <Select value={timeFilter} onValueChange={handleTimeFilterChange}>
               <SelectTrigger className="w-[140px]">
                 <SelectValue />
               </SelectTrigger>
@@ -134,11 +162,12 @@ export function DataTable({ data, onRefresh }: DataTableProps) {
           
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium">Show:</span>
-            <Select value={displayLimit.toString()} onValueChange={(value: string) => setDisplayLimit(Number(value))}>
+            <Select value={itemsPerPage.toString()} onValueChange={handleItemsPerPageChange}>
               <SelectTrigger className="w-[80px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="5">5</SelectItem>
                 <SelectItem value="10">10</SelectItem>
                 <SelectItem value="25">25</SelectItem>
                 <SelectItem value="50">50</SelectItem>
@@ -162,10 +191,12 @@ export function DataTable({ data, onRefresh }: DataTableProps) {
                 </tr>
               </thead>
               <tbody>
-                {filteredAndSortedData.map((item, index) => (
+                {paginatedData.map((item, index) => {
+                  const globalIndex = (currentPage - 1) * itemsPerPage + index + 1
+                  return (
                   <tr key={`${item.timestamp}-${index}`} className="border-b last:border-b-0 hover:bg-muted/30">
                     <td className="p-3 text-sm font-medium">
-                      {index + 1}
+                      {globalIndex}
                     </td>
                     <td className="p-3 text-sm">
                       <div className="space-y-1">
@@ -212,27 +243,103 @@ export function DataTable({ data, onRefresh }: DataTableProps) {
                       </Badge>
                     </td>
                   </tr>
-                ))}
+                )})}
               </tbody>
             </table>
           </div>
           
-          {filteredAndSortedData.length === 0 && (
+          {paginatedData.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
               <p>No data available for the selected time range</p>
             </div>
           )}
         </div>
         
-        <div className="mt-4 flex justify-between items-center text-sm text-muted-foreground">
-          <span>
-            Showing {filteredAndSortedData.length} of {data.length} entries
-            {timeFilter !== 'all' && ` (${timeFilter} filter)`}
-          </span>
-          <span>
-            Sorted by {sortOrder === 'newest' ? 'newest' : 'oldest'} first
-          </span>
-        </div>
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="text-sm text-muted-foreground">
+              Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredData.length)} of {filteredData.length} entries
+              {timeFilter !== 'all' && ` (${timeFilter} filter)`}
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => goToPage(1)}
+                disabled={currentPage === 1}
+              >
+                <ChevronsLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              
+              <div className="flex items-center gap-1">
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum
+                  if (totalPages <= 5) {
+                    pageNum = i + 1
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i
+                  } else {
+                    pageNum = currentPage - 2 + i
+                  }
+                  
+                  return (
+                    <Button
+                      key={pageNum}
+                      variant={currentPage === pageNum ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => goToPage(pageNum)}
+                      className="w-9 h-9"
+                    >
+                      {pageNum}
+                    </Button>
+                  )
+                })}
+              </div>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => goToPage(totalPages)}
+                disabled={currentPage === totalPages}
+              >
+                <ChevronsRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Info when no pagination needed */}
+        {totalPages <= 1 && (
+          <div className="mt-4 flex justify-between items-center text-sm text-muted-foreground">
+            <span>
+              Showing {filteredData.length} of {data.length} entries
+              {timeFilter !== 'all' && ` (${timeFilter} filter)`}
+            </span>
+            <span>
+              Sorted by {sortOrder === 'newest' ? 'newest' : 'oldest'} first
+            </span>
+          </div>
+        )}
       </CardContent>
     </Card>
   )
